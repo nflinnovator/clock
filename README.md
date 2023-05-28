@@ -9,21 +9,21 @@ Clock is a java client application that enables its users to utilize it either a
 + Outside-in Test-driven Development
 ## Features
 #### Clock
-[ ] Display the current time of the day
+- [ ] Display the current time of the day
 #### Stopwatch
-[ ] Display the passage of time in milliseconds
-[ ] Record a series of instants
-[ ] Pause the stopwatch
-[ ] Resume the stopwatch
-[ ] Reset the stopwatch
+- [ ] Display the passage of time in milliseconds
+- [ ] Record a series of instants
+- [ ] Pause the stopwatch
+- [ ] Resume the stopwatch
+- [ ] Reset the stopwatch
 #### Countdown timer
-[ ] launch a countdown timer
-[ ] abort a countdown timer
+- [ ] launch a countdown timer
+- [ ] abort a countdown timer
 #### General
-[ ] enable a tick sound every second
-[ ] disable a tick sound every second
-[ ] enable a beep sound when stopwatch is stopped
-[ ] enable a beep sound when countdown timer is stopped
-[ ] disable a beep sound when stopwatch is stopped
-[ ] disable a beep sound when countdown timer is stopped
+- [ ] enable a tick sound every second
+- [ ] disable a tick sound every second
+- [ ] enable a beep sound when stopwatch is stopped
+- [ ] enable a beep sound when countdown timer is stopped
+- [ ] disable a beep sound when stopwatch is stopped
+- [ ] disable a beep sound when countdown timer is stopped
 ## Final Result
