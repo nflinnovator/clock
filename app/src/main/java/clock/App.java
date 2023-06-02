@@ -3,12 +3,28 @@
  */
 package clock;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class App extends Application{
+	
+	public static String TIMER_DEFAULT_VALUE = "59";
+	public static String LABEL_ID = "label";
+	public static String APPLICATION_NAME = "Clock Application";
+
+    public static void main(String... args) {
+    	Application.launch(args);
     }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
-    }
+	@Override
+	public void start(Stage stage) throws Exception {
+		final var label = new Label(TIMER_DEFAULT_VALUE);
+		label.setId(LABEL_ID);
+		final var scene = new Scene(label, 300, 300);
+		stage.setScene(scene);
+		stage.setTitle(APPLICATION_NAME);
+		stage.show();
+	}
 }
