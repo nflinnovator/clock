@@ -9,7 +9,7 @@ class ApplicationRunner {
 			driver.setup();
 	}
 
-	void launch() {
+	void launches() {
 		final var applicationTestThread = new Thread("Application Test Thread") {
 			@Override
 			public void run() {
@@ -24,8 +24,16 @@ class ApplicationRunner {
 		applicationTestThread.start();
 	}
 
-	void showsCountdownTimerWithDefaultValue() {
-		driver.showsCountdownTimerWithDefaultValue();
+	void showsCountdownTimerWithDefaultValue(Integer defaultValue) {
+		driver.showCountdownTimerWithDefaultValue(defaultValue);
+	}
+	
+	void showsCountdownTimerStatus(String status) {
+		driver.showCountdownTimerStatus(status);
+	}
+	
+	void startsCountdownTimer() {
+		driver.startCountdownTimer();
 	}
 
 	void close() throws Exception {

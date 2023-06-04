@@ -23,7 +23,13 @@ dependencies {
     
     // https://mvnrepository.com/artifact/org.testfx/testfx-junit5
     testImplementation 'org.testfx:testfx-junit5:4.0.16-alpha'
-
+    
+    // Matchers that can be combined to create flexible expressions of intent
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    
+    // JMock is a library that supports test-driven development of Java code with mock objects
+    testImplementation 'org.jmock:jmock-junit5:2.12.0'
+    
     // This dependency is used by the application.
     //implementation 'com.google.guava:guava:31.1-jre'
 }

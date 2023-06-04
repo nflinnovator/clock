@@ -5,14 +5,23 @@ package clock;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class App extends Application{
+public class App extends Application implements UserEventListener{
 	
-	public static String TIMER_DEFAULT_VALUE = "59";
-	public static String LABEL_ID = "label";
+	public static Integer TIMER_DEFAULT_VALUE = 59;
+	public static String TIMER_LABEL_ID = "timerLabel";
+	public static String STATUS_LABEL_ID = "statusLabel";
+	public static String START_TIMER_BUTTON_ID = "startTimerButton";
 	public static String APPLICATION_NAME = "Clock Application";
+	public static String STATUS_OFF = "Off";
+	public static String STATUS_ON = "On";
+	
+	private Label statusLabel = new Label(STATUS_OFF);
+	private UserEventHandler handler = new UserEventHandler(this);
 
     public static void main(String... args) {
     	Application.launch(args);
@@ -20,11 +29,24 @@ public class App extends Application{
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		final var label = new Label(TIMER_DEFAULT_VALUE);
-		label.setId(LABEL_ID);
-		final var scene = new Scene(label, 300, 300);
+		final var root = new VBox();
+		final var timerLabel = new Label(String.valueOf(TIMER_DEFAULT_VALUE));
+		timerLabel.setId(TIMER_LABEL_ID);
+		statusLabel.setId(STATUS_LABEL_ID);
+		final var startTimerButton = new Button("Start Timer");
+		startTimerButton.setId(START_TIMER_BUTTON_ID);
+		startTimerButton.setOnAction(handler);
+		root.getChildren().add(statusLabel);
+		root.getChildren().add(timerLabel);
+		root.getChildren().add(startTimerButton);
+		final var scene = new Scene(root, 400, 500);
 		stage.setScene(scene);
 		stage.setTitle(APPLICATION_NAME);
 		stage.show();
+	}
+
+	@Override
+	public void countdownStarted() {
+		statusLabel.setText(STATUS_ON);
 	}
 }

@@ -3,6 +3,10 @@
  */
 package clock;
 
+import static clock.App.TIMER_DEFAULT_VALUE;
+import static clock.App.STATUS_OFF;
+import static clock.App.STATUS_ON;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +21,17 @@ class CountdownTimerAcceptanceTests {
 	}
 
 	@Test
-	void OnceOpenedDisplaysAFrozenCountdownTimerWithDefaultValue() {
-		application.launch();
-		application.showsCountdownTimerWithDefaultValue();
+	void onceOpenedDisplaysAFrozenCountdownTimerWithDefaultValue() {
+		application.launches();
+		application.showsCountdownTimerWithDefaultValue(TIMER_DEFAULT_VALUE);
+		application.showsCountdownTimerStatus(STATUS_OFF);
+	}
+	
+	@Test
+	void launchCountdownTimerAndItStartsDecrementingEverySecond() {
+		application.launches();
+		application.startsCountdownTimer();
+		application.showsCountdownTimerStatus(STATUS_ON);
 	}
 
 	@AfterEach
