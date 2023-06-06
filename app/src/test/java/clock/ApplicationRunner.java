@@ -14,7 +14,7 @@ class ApplicationRunner {
 			@Override
 			public void run() {
 				try {
-					driver.launch(App.class, "");
+					driver.startApplication();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -24,8 +24,8 @@ class ApplicationRunner {
 		applicationTestThread.start();
 	}
 
-	void showsCountdownTimerWithDefaultValue(Integer defaultValue) {
-		driver.showCountdownTimerWithDefaultValue(defaultValue);
+	void showsCountdownTimerWithValue(Integer value) {
+		driver.showCountdownTimerWithValue(value);
 	}
 	
 	void showsCountdownTimerStatus(String status) {
@@ -35,6 +35,16 @@ class ApplicationRunner {
 	void startsCountdownTimer() {
 		driver.startCountdownTimer();
 	}
+	
+	/*
+    void hasShownCountdownTimerDecrementingEverySecondFor(Integer value) throws InterruptedException {
+    	final var signal = new CountDownLatch(value);
+    	signal.countDown();
+    	for(int i = 0; i <= value; i++) {
+    		driver.showCountdownTimerWithValue(value-i);
+			signal.await(1,TimeUnit.SECONDS);
+		}
+	}*/
 
 	void close() throws Exception {
 		if (driver != null)

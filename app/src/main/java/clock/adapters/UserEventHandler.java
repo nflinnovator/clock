@@ -1,5 +1,6 @@
-package clock;
+package clock.adapters;
 
+import clock.domain.UserEventListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -13,7 +14,7 @@ public class UserEventHandler implements EventHandler<ActionEvent>{
 
 	@Override
 	public void handle(ActionEvent event) {
-		listener.countdownStarted();
+		listener.onTimerStartedEvent();
 	}
 
 }

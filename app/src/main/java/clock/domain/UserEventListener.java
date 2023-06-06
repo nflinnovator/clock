@@ -1,7 +1,7 @@
-package clock;
+package clock.domain;
 
 import java.util.EventListener;
 
 public interface UserEventListener extends EventListener{
-  void countdownStarted();
+  void onTimerStartedEvent();
 }

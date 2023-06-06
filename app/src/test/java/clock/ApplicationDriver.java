@@ -1,8 +1,8 @@
 package clock;
 
-import static clock.App.TIMER_LABEL_ID;
-import static clock.App.STATUS_LABEL_ID;
-import static clock.App.START_TIMER_BUTTON_ID;
+import static clock.ui.UserInterface.START_TIMER_BUTTON_ID;
+import static clock.ui.UserInterface.STATUS_LABEL_ID;
+import static clock.ui.UserInterface.TIMER_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
@@ -19,8 +19,10 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
 class ApplicationDriver extends FxRobot implements ApplicationFixture {
+	
+	private static final String NO_PARAMETER = null;
 
-	public void launch(Class<? extends Application> appClass, String... appArgs) throws Exception {
+	private void launch(Class<? extends Application> appClass, String... appArgs) throws Exception {
 		FxToolkit.registerPrimaryStage();
 		FxToolkit.setupApplication(appClass, appArgs);
 	}
@@ -29,21 +31,30 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		FxToolkit.registerPrimaryStage();
 		FxToolkit.setupApplication(() -> new ApplicationAdapter(this));
 	}
+	
+	void startApplication() throws Exception {
+		launch(ClockApplication.class, NO_PARAMETER);
+	}
 
-	void showCountdownTimerWithDefaultValue(Integer defaultValue) {
-		sleep(500, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(defaultValue)));
+	void showCountdownTimerWithValue(Integer value) {
+		sleep(1000, TimeUnit.MILLISECONDS);
+		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(value)));
 	}
 	
 	void showCountdownTimerStatus(String status) {
-		sleep(500, TimeUnit.MILLISECONDS);
+		sleep(1000, TimeUnit.MILLISECONDS);
 		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
 	}
-
+    
+    
 	void startCountdownTimer() {
-		sleep(500, TimeUnit.MILLISECONDS);
+		sleep(1000, TimeUnit.MILLISECONDS);
 		clickOn(formatId(START_TIMER_BUTTON_ID));
 	}
+	/*
+	void hasShownCountdownTimerDecrementingEverySecondFor(Integer value) {
+		
+	}*/
 
 	void dispose() throws Exception {
 		// release all keys
