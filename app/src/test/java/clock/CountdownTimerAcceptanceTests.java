@@ -3,7 +3,7 @@
  */
 package clock;
 
-import static clock.domain.CountdownTimer.COUNTDOWN_TIMER_DURATION_INITIAL_VALUE_IN_SECONDS;
+import static clock.ClockApplication.TIMER_INITIAL_VALUE;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,10 +15,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @DisplayName("Countdown Timer Acceptance (End to End) Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class CountdownTimerAcceptanceTests {
+public class CountdownTimerAcceptanceTests {
 
 	public static final String STATUS_OFF = "OFF";
 	public static final String STATUS_ON = "ON";
+	public static final Integer COUNTDOWN_TIMER_STOP_VALUE = 0;
 	
 	private final ApplicationRunner application = new ApplicationRunner();
 
@@ -31,7 +32,7 @@ class CountdownTimerAcceptanceTests {
 	@Order(1)
 	void onceOpenedDisplaysAFrozenCountdownTimerWithInitialValue() {
 		application.launches();
-		application.showsCountdownTimerWithValue(COUNTDOWN_TIMER_DURATION_INITIAL_VALUE_IN_SECONDS);
+		application.showsCountdownTimerWithValue(TIMER_INITIAL_VALUE);
 		application.showsCountdownTimerStatus(STATUS_OFF);
 	}
 	
@@ -43,17 +44,17 @@ class CountdownTimerAcceptanceTests {
 		application.showsCountdownTimerStatus(STATUS_ON);
 	}
 	
-	/*
+	
 	@Test
 	@Order(3)
 	void startCountdownTimerAndItStartsDecrementingEverySecond() throws InterruptedException {
 		application.launches();
 		application.startsCountdownTimer();
 		application.showsCountdownTimerStatus(STATUS_ON);
-		application.hasShownCountdownTimerDecrementingEverySecondFor(COUNTDOWN_TIMER_DURATION_DEFAULT_VALUE_IN_SECONDS);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
 		application.showsCountdownTimerStatus(STATUS_OFF);
-		application.showsCountdownTimerWithValue(COUNTDOWN_TIMER_FINAL_VALUE);
-	}*/
+		application.showsCountdownTimerWithValue(COUNTDOWN_TIMER_STOP_VALUE);
+	}
 
 	@AfterEach
 	void closeApplication() throws Exception {

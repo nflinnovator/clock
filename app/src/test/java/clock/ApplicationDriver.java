@@ -51,10 +51,6 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		sleep(1000, TimeUnit.MILLISECONDS);
 		clickOn(formatId(START_TIMER_BUTTON_ID));
 	}
-	/*
-	void hasShownCountdownTimerDecrementingEverySecondFor(Integer value) {
-		
-	}*/
 
 	void dispose() throws Exception {
 		// release all keys

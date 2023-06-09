@@ -1,23 +1,69 @@
 package clock.domain;
 
-public class CountdownTimer implements UserEventListener{
-	
-	public static final Integer COUNTDOWN_TIMER_DURATION_INITIAL_VALUE_IN_SECONDS = 59;
-	
+import java.util.concurrent.Executor;
+
+public class CountdownTimer implements UserEventListener {
+
+	private static final Integer STOP_VALUE = 0;
+
+	private final Integer duration;
 	private CountdownTimerState state;
+	private final Executor executor;
 	private final CountdownTimerListener listener;
-	
-	public CountdownTimer(CountdownTimerListener listener) {
-		state = new CountdownTimerState(COUNTDOWN_TIMER_DURATION_INITIAL_VALUE_IN_SECONDS, false);
+
+	public CountdownTimer(Integer duration, Executor executor, CountdownTimerListener listener) {
+		this.duration = duration;
+		this.executor = executor;
 		this.listener = listener;
+		state = new CountdownTimerState(duration, false);
 	}
 
 	@Override
-	public void onTimerStartedEvent() {
-		state = new CountdownTimerState(COUNTDOWN_TIMER_DURATION_INITIAL_VALUE_IN_SECONDS, true);
-		listener.countdownTimerStarted();
+	public void onStart() {
+		state = new CountdownTimerState(duration, true);
+		listener.startCountdownTimer();
+		executor.execute(new Runnable() {
+			Integer currentValue = state.currentValue();
+
+			@Override
+			public void run() {
+				while (canRun()) {
+					countdown();
+					state = new CountdownTimerState(currentValue, true);
+					listener.updateCountdownTimer();
+					if(isNotLastRound()) {
+						pauseForASecond();
+					}else {
+						state = new CountdownTimerState(state.currentValue(), false);      
+						listener.timeoutCountdownTimer();
+					}
+					
+				}
+			}
+
+			private Boolean canRun() {
+				return currentValue > STOP_VALUE ? Boolean.TRUE : Boolean.FALSE;
+			}
+			
+			private Boolean isNotLastRound() {
+				final var lastRound = 0;
+				return currentValue > lastRound ? Boolean.TRUE : Boolean.FALSE;
+			}
+			
+			private void countdown() {
+				currentValue--;
+			}
+
+			private void pauseForASecond() {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
-	
+
 	public CountdownTimerState getCurrentState() {
 		return state;
 	}

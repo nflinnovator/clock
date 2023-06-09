@@ -35,9 +35,18 @@ public class UserInterface {
 		stage.setTitle(APPLICATION_NAME);
 		stage.show();
 	}
+	
+	public void update(CountdownTimer timer) {
+		updateStatusLabel(timer.getCurrentState().status());
+		updateTimerLabel(timer.getCurrentState().currentValue());
+	}
 
-	public void updateStatusLabel(boolean status) {
+	private void updateStatusLabel(boolean status) {
 		statusLabel.setText(displayStatus(status));
+	}
+	
+	private void updateTimerLabel(Integer currentValue) {
+		timerLabel.setText(String.valueOf(currentValue));
 	}
 
 	private String displayStatus(boolean status) {

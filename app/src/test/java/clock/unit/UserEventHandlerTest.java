@@ -18,7 +18,7 @@ class UserEventHandlerTest {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onTimerStartedEvent();
+				oneOf(listener).onStart();
 			}
 		});
 

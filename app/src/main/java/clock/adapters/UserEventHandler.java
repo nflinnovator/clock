@@ -14,7 +14,7 @@ public class UserEventHandler implements EventHandler<ActionEvent>{
 
 	@Override
 	public void handle(ActionEvent event) {
-		listener.onTimerStartedEvent();
+		listener.onStart();
 	}
 
 }

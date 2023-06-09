@@ -1,5 +1,9 @@
 package clock;
 
+import static clock.CountdownTimerAcceptanceTests.COUNTDOWN_TIMER_STOP_VALUE;
+
+import java.util.concurrent.CountDownLatch;
+
 class ApplicationRunner {
 
 	private final ApplicationDriver driver = new ApplicationDriver();
@@ -36,15 +40,11 @@ class ApplicationRunner {
 		driver.startCountdownTimer();
 	}
 	
-	/*
     void hasShownCountdownTimerDecrementingEverySecondFor(Integer value) throws InterruptedException {
     	final var signal = new CountDownLatch(value);
     	signal.countDown();
-    	for(int i = 0; i <= value; i++) {
-    		driver.showCountdownTimerWithValue(value-i);
-			signal.await(1,TimeUnit.SECONDS);
-		}
-	}*/
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_STOP_VALUE);
+	}
 
 	void close() throws Exception {
 		if (driver != null)
