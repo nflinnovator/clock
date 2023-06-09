@@ -22,50 +22,54 @@ public class CountdownTimer implements UserEventListener {
 	public void onStart() {
 		state = new CountdownTimerState(duration, true);
 		listener.startCountdownTimer();
-		executor.execute(new Runnable() {
-			Integer currentValue = state.currentValue();
-
-			@Override
-			public void run() {
-				while (canRun()) {
-					countdown();
-					state = new CountdownTimerState(currentValue, true);
-					listener.updateCountdownTimer();
-					if(isNotLastRound()) {
-						pauseForASecond();
-					}else {
-						state = new CountdownTimerState(state.currentValue(), false);      
-						listener.timeoutCountdownTimer();
-					}
-					
-				}
-			}
-
-			private Boolean canRun() {
-				return currentValue > STOP_VALUE ? Boolean.TRUE : Boolean.FALSE;
-			}
-			
-			private Boolean isNotLastRound() {
-				final var lastRound = 0;
-				return currentValue > lastRound ? Boolean.TRUE : Boolean.FALSE;
-			}
-			
-			private void countdown() {
-				currentValue--;
-			}
-
-			private void pauseForASecond() {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		executor.execute(new CountdownRunner());
 	}
 
 	public CountdownTimerState getCurrentState() {
 		return state;
+	}
+	
+	private class CountdownRunner implements Runnable{
+		
+		private Integer currentValue = state.currentValue();
+
+		@Override
+		public void run() {
+			while (canRun()) {
+				countdown();
+				state = new CountdownTimerState(currentValue, true);
+				listener.updateCountdownTimer();
+				if(isNotLastRound()) {
+					pauseForASecond();
+				}else {
+					state = new CountdownTimerState(state.currentValue(), false);      
+					listener.timeoutCountdownTimer();
+				}
+				
+			}
+		}
+
+		private Boolean canRun() {
+			return currentValue > STOP_VALUE ? Boolean.TRUE : Boolean.FALSE;
+		}
+		
+		private Boolean isNotLastRound() {
+			final var lastRound = 0;
+			return currentValue > lastRound ? Boolean.TRUE : Boolean.FALSE;
+		}
+		
+		private void countdown() {
+			currentValue--;
+		}
+
+		private void pauseForASecond() {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 }
