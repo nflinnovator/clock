@@ -3,6 +3,7 @@ package clock;
 import static clock.ui.UserInterface.START_TIMER_BUTTON_ID;
 import static clock.ui.UserInterface.STATUS_LABEL_ID;
 import static clock.ui.UserInterface.TIMER_LABEL_ID;
+import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
@@ -35,20 +36,32 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	void startApplication() throws Exception {
 		launch(ClockApplication.class, NO_PARAMETER);
 	}
+	
+	void showsCountdownTimerWithValues(Integer value,Integer runCount,String status) {
+		sleep(900, TimeUnit.MILLISECONDS);
+		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(value)));
+		verifyThat(formatId(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
+		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
+	}
 
 	void showCountdownTimerWithValue(Integer value) {
 		sleep(1000, TimeUnit.MILLISECONDS);
 		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(value)));
 	}
 	
-	void showCountdownTimerStatus(String status) {
+	void showCountdownTimerWithRunCount(Integer runCount) {
+		sleep(1000, TimeUnit.MILLISECONDS);
+		verifyThat(formatId(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
+	}
+	
+	void showCountdownTimerWithStatus(String status) {
 		sleep(1000, TimeUnit.MILLISECONDS);
 		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
 	}
     
     
 	void startCountdownTimer() {
-		sleep(1000, TimeUnit.MILLISECONDS);
+		//sleep(1000, TimeUnit.MILLISECONDS);
 		clickOn(formatId(START_TIMER_BUTTON_ID));
 	}
 

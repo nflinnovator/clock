@@ -19,7 +19,8 @@ public class CountdownTimerAcceptanceTests {
 
 	public static final String STATUS_OFF = "OFF";
 	public static final String STATUS_ON = "ON";
-	public static final Integer COUNTDOWN_TIMER_STOP_VALUE = 0;
+	public static final Integer RUN_COUNT = 0;
+	public static final Integer TIMER_STOP_VALUE = 0;
 	
 	private final ApplicationRunner application = new ApplicationRunner();
 
@@ -32,28 +33,43 @@ public class CountdownTimerAcceptanceTests {
 	@Order(1)
 	void onceOpenedDisplaysAFrozenCountdownTimerWithInitialValue() {
 		application.launches();
-		application.showsCountdownTimerWithValue(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerStatus(STATUS_OFF);
+		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 	}
 	
 	@Test
 	@Order(2)
 	void startCountdownTimerAndItUpdatesCountdownTimerStatus() {
 		application.launches();
+		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 		application.startsCountdownTimer();
-		application.showsCountdownTimerStatus(STATUS_ON);
+		application.showsCountdownTimerWithStatus(STATUS_ON);
+		application.showsCountdownTimerWithRunCount(RUN_COUNT + 1);
 	}
-	
 	
 	@Test
 	@Order(3)
-	void startCountdownTimerAndItStartsDecrementingEverySecond() throws InterruptedException {
+	void startCountdownTimerForTheFirstTimeAndItStartsDecrementingEverySecond() throws InterruptedException {
 		application.launches();
+		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 		application.startsCountdownTimer();
-		application.showsCountdownTimerStatus(STATUS_ON);
+		application.showsCountdownTimerWithStatus(STATUS_ON);
 		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerStatus(STATUS_OFF);
-		application.showsCountdownTimerWithValue(COUNTDOWN_TIMER_STOP_VALUE);
+		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_OFF);
+	}
+	
+	@Test
+	@Order(4)
+	void startCountdownTimerNotForTheFirstTimeAndItStartsWithTheRightInitialValue() throws InterruptedException {
+		application.launches();
+		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
+		application.startsCountdownTimer();
+		application.showsCountdownTimerWithStatus(STATUS_ON);
+		application.showsCountdownTimerWithRunCount(RUN_COUNT + 1);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
+		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_OFF);
+		application.pause();
+		application.startsCountdownTimer();
+		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT+2,STATUS_ON);
 	}
 
 	@AfterEach

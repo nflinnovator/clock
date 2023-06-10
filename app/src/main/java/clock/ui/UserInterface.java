@@ -14,22 +14,24 @@ import javafx.stage.Stage;
 public class UserInterface {
 
 	public final static String TIMER_LABEL_ID = "timerLabelId";
+	public final static String RUN_COUNT_LABEL_ID = "runCountLabelId";
 	public final static String STATUS_LABEL_ID = "statusLabelId";
 	public final static String START_TIMER_BUTTON_ID = "startTimerButtonId";
 
 	private static final String APPLICATION_NAME = "Clock Application";
 
-	private Labeled statusLabel, timerLabel;
+	private Label statusLabel, timerLabel,runCountLabel;
 	private Button startTimerButton;
 	private Pane root;
 
 	public UserInterface(Stage stage, CountdownTimer timer) {
 		root = new VBox();
 		timerLabel = createLabel(String.valueOf(timer.getCurrentState().currentValue()), TIMER_LABEL_ID);
+		runCountLabel = createLabel(String.valueOf(timer.getCurrentState().runCount()), RUN_COUNT_LABEL_ID);
 		statusLabel = createLabel(displayStatus(timer.getCurrentState().status()), STATUS_LABEL_ID);
 		startTimerButton = createButton("Start Timer", START_TIMER_BUTTON_ID);
 		startTimerButton.setOnAction(new UserEventHandler(timer));
-		addToRoot(statusLabel, timerLabel, startTimerButton);
+		addToRoot(statusLabel, runCountLabel,timerLabel, startTimerButton);
 		final var scene = new Scene(root, 300, 400);
 		stage.setScene(scene);
 		stage.setTitle(APPLICATION_NAME);
@@ -39,6 +41,7 @@ public class UserInterface {
 	public void update(CountdownTimer timer) {
 		updateStatusLabel(timer.getCurrentState().status());
 		updateTimerLabel(timer.getCurrentState().currentValue());
+		updateRunCountLabel(timer.getCurrentState().runCount());
 	}
 
 	private void updateStatusLabel(boolean status) {
@@ -47,6 +50,10 @@ public class UserInterface {
 	
 	private void updateTimerLabel(Integer currentValue) {
 		timerLabel.setText(String.valueOf(currentValue));
+	}
+	
+	private void updateRunCountLabel(Integer runCount) {
+		runCountLabel.setText(String.valueOf(runCount));
 	}
 
 	private String displayStatus(boolean status) {

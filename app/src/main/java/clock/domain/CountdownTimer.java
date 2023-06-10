@@ -7,6 +7,7 @@ public class CountdownTimer implements UserEventListener {
 	private static final Integer STOP_VALUE = 0;
 
 	private final Integer duration;
+	private Integer runCount;
 	private CountdownTimerState state;
 	private final Executor executor;
 	private final CountdownTimerListener listener;
@@ -15,12 +16,14 @@ public class CountdownTimer implements UserEventListener {
 		this.duration = duration;
 		this.executor = executor;
 		this.listener = listener;
-		state = new CountdownTimerState(duration, false);
+		runCount = 0;
+		state = new CountdownTimerState(duration,runCount, false);
 	}
 
 	@Override
 	public void onStart() {
-		state = new CountdownTimerState(duration, true);
+		runCount++;
+		state = new CountdownTimerState(duration,runCount, true);
 		listener.startCountdownTimer();
 		executor.execute(new CountdownRunner());
 	}
@@ -31,18 +34,18 @@ public class CountdownTimer implements UserEventListener {
 	
 	private class CountdownRunner implements Runnable{
 		
-		private Integer currentValue = state.currentValue();
+		private Integer currentValue = runCount == 1 ? state.currentValue() : state.currentValue() + 1;
 
 		@Override
 		public void run() {
 			while (canRun()) {
 				countdown();
-				state = new CountdownTimerState(currentValue, true);
+				state = new CountdownTimerState(currentValue,runCount, true);
 				listener.updateCountdownTimer();
 				if(isNotLastRound()) {
-					pauseForASecond();
+					pauseForOneSecond();
 				}else {
-					state = new CountdownTimerState(state.currentValue(), false);      
+					state = new CountdownTimerState(currentValue,runCount, false);      
 					listener.timeoutCountdownTimer();
 				}
 				
@@ -59,10 +62,10 @@ public class CountdownTimer implements UserEventListener {
 		}
 		
 		private void countdown() {
-			currentValue--;
+			--currentValue;
 		}
 
-		private void pauseForASecond() {
+		private void pauseForOneSecond() {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

@@ -32,6 +32,7 @@ class CountdownTimerTest {
 	void timerStartsInTheRightState() {
 		assertThat(Boolean.FALSE, equalTo(status()));
 		assertThat(duration, equalTo(currentValue()));
+		assertThat(0, equalTo(runCount()));
 	}
 	
 	@Test
@@ -50,6 +51,7 @@ class CountdownTimerTest {
 		
 		assertThat(Boolean.TRUE, equalTo(status()));
 		assertThat(duration, equalTo(currentValue()));
+		assertThat(1, equalTo(runCount()));
 	}
 	
 	@Test
@@ -57,7 +59,7 @@ class CountdownTimerTest {
 	void sendsUpdatesEverySecondOnceStarted() {
 		context.checking(new Expectations() {{
 			allowing(listener).startCountdownTimer();then(state.is("On"));
-			exactly(duration).of(listener).updateCountdownTimer();then(state.is("Off"));
+			exactly(duration).of(listener).updateCountdownTimer();when(state.is("On"));
 			ignoring(listener).timeoutCountdownTimer();
 		}});
 		
@@ -68,6 +70,7 @@ class CountdownTimerTest {
 		
 		assertThat(Boolean.FALSE, equalTo(status()));
 		assertThat(currentValue(),equalTo(0));
+		assertThat(1, equalTo(runCount()));
 	}
 	
 	@Test
@@ -75,8 +78,8 @@ class CountdownTimerTest {
 	void reportsTimeoutWhenCountdownGetsToZero() {
 		context.checking(new Expectations() {{
 			allowing(listener).startCountdownTimer();then(state.is("On"));
-			allowing(listener).updateCountdownTimer();then(state.is("Off"));
-			oneOf(listener).timeoutCountdownTimer();when(state.is("Off"));
+			allowing(listener).updateCountdownTimer();when(state.is("On"));
+			oneOf(listener).timeoutCountdownTimer();then(state.is("Off"));
 		}});
 		
 		timer.onStart();
@@ -86,12 +89,35 @@ class CountdownTimerTest {
 		
 	}
 	
+	@Test
+	@Order(5)
+	void timerIsInTheRightStateWhenStartedSeveralTimes() {
+		context.checking(new Expectations() {{
+			exactly(2).of(listener).startCountdownTimer();then(state.is("On"));
+			ignoring(listener).updateCountdownTimer();
+			ignoring(listener).timeoutCountdownTimer();
+		}});
+		
+		timer.onStart();
+		timer.onStart();
+		
+		context.assertIsSatisfied();
+		
+		assertThat(Boolean.TRUE, equalTo(status()));
+		assertThat(duration, equalTo(currentValue()));
+		assertThat(2, equalTo(runCount()));
+	}
+	
 	private Boolean status() {
 		return timer.getCurrentState().status();
 	}
 	
 	private Integer currentValue() {
 		return timer.getCurrentState().currentValue();
+	}
+	
+	private Integer runCount() {
+		return timer.getCurrentState().runCount();
 	}
 
 
