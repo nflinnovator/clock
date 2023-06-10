@@ -57,6 +57,10 @@ class ApplicationRunner {
     	signal.countDown();
     	driver.showCountdownTimerWithValue(TIMER_STOP_VALUE);
 	}
+    
+    void showsStartAndPauseButtonWithText(String text){
+    	driver.showsStartAndPauseButtonWithText(text);
+    }
 
 	void close() throws Exception {
 		if (driver != null)

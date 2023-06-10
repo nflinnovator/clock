@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -16,22 +15,24 @@ public class UserInterface {
 	public final static String TIMER_LABEL_ID = "timerLabelId";
 	public final static String RUN_COUNT_LABEL_ID = "runCountLabelId";
 	public final static String STATUS_LABEL_ID = "statusLabelId";
-	public final static String START_TIMER_BUTTON_ID = "startTimerButtonId";
+	public final static String START_AND_PAUSE_BUTTON_ID = "startAndPauseButtonId";
+	public final static String START_BUTTON_TEXT = "Start";
+	public final static String PAUSE_BUTTON_TEXT = "Pause";
 
 	private static final String APPLICATION_NAME = "Clock Application";
 
 	private Label statusLabel, timerLabel,runCountLabel;
-	private Button startTimerButton;
+	private Button startAndPauseTimerButton;
 	private Pane root;
-
+  
 	public UserInterface(Stage stage, CountdownTimer timer) {
 		root = new VBox();
 		timerLabel = createLabel(String.valueOf(timer.getCurrentState().currentValue()), TIMER_LABEL_ID);
 		runCountLabel = createLabel(String.valueOf(timer.getCurrentState().runCount()), RUN_COUNT_LABEL_ID);
 		statusLabel = createLabel(displayStatus(timer.getCurrentState().status()), STATUS_LABEL_ID);
-		startTimerButton = createButton("Start Timer", START_TIMER_BUTTON_ID);
-		startTimerButton.setOnAction(new UserEventHandler(timer));
-		addToRoot(statusLabel, runCountLabel,timerLabel, startTimerButton);
+		startAndPauseTimerButton = createButton(displayStartAndPauseButtonText(timer.getCurrentState().status()), START_AND_PAUSE_BUTTON_ID);
+		startAndPauseTimerButton.setOnAction(new UserEventHandler(timer));
+		addToRoot(statusLabel, runCountLabel,timerLabel, startAndPauseTimerButton);
 		final var scene = new Scene(root, 300, 400);
 		stage.setScene(scene);
 		stage.setTitle(APPLICATION_NAME);
@@ -39,10 +40,15 @@ public class UserInterface {
 	}
 	
 	public void update(CountdownTimer timer) {
+		updateStartAndPauseButtonText(timer.getCurrentState().status());
 		updateStatusLabel(timer.getCurrentState().status());
 		updateTimerLabel(timer.getCurrentState().currentValue());
 		updateRunCountLabel(timer.getCurrentState().runCount());
 	}
+	
+	private void updateStartAndPauseButtonText(boolean status) {
+		startAndPauseTimerButton.setText(displayStartAndPauseButtonText(status));
+ 	}
 
 	private void updateStatusLabel(boolean status) {
 		statusLabel.setText(displayStatus(status));
@@ -58,6 +64,10 @@ public class UserInterface {
 
 	private String displayStatus(boolean status) {
 		return status == false ? "OFF" : "ON";
+	}
+	
+	private String displayStartAndPauseButtonText(boolean status) {
+		return status == true ? PAUSE_BUTTON_TEXT : START_BUTTON_TEXT;
 	}
 
 	private Label createLabel(String value, String id) {

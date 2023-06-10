@@ -4,6 +4,8 @@
 package clock;
 
 import static clock.ClockApplication.TIMER_INITIAL_VALUE;
+import static clock.ui.UserInterface.START_BUTTON_TEXT;
+import static clock.ui.UserInterface.PAUSE_BUTTON_TEXT;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +72,16 @@ public class CountdownTimerAcceptanceTests {
 		application.pause();
 		application.startsCountdownTimer();
 		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT+2,STATUS_ON);
+	}
+	
+	@Test
+	@Order(5)
+	void startButtonBecomesPauseButtonWhenTimerIsRunningAndBackToStartButtonWhenTimerTimesOut() throws InterruptedException {
+		application.launches();
+		application.startsCountdownTimer();
+		application.showsStartAndPauseButtonWithText(PAUSE_BUTTON_TEXT);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
+		application.showsStartAndPauseButtonWithText(START_BUTTON_TEXT);
 	}
 
 	@AfterEach

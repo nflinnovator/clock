@@ -1,9 +1,9 @@
 package clock;
 
-import static clock.ui.UserInterface.START_TIMER_BUTTON_ID;
+import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
+import static clock.ui.UserInterface.START_AND_PAUSE_BUTTON_ID;
 import static clock.ui.UserInterface.STATUS_LABEL_ID;
 import static clock.ui.UserInterface.TIMER_LABEL_ID;
-import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
@@ -59,10 +59,14 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
 	}
     
-    
 	void startCountdownTimer() {
-		//sleep(1000, TimeUnit.MILLISECONDS);
-		clickOn(formatId(START_TIMER_BUTTON_ID));
+		sleep(1000, TimeUnit.MILLISECONDS);
+		clickOn(formatId(START_AND_PAUSE_BUTTON_ID));
+	}
+	
+	void showsStartAndPauseButtonWithText(String text) {
+		sleep(1000, TimeUnit.MILLISECONDS);
+		verifyThat(formatId(START_AND_PAUSE_BUTTON_ID), hasText(text));
 	}
 
 	void dispose() throws Exception {
