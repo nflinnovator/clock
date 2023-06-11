@@ -55,6 +55,10 @@ class ApplicationRunner {
 		driver.pausesCountdownTimer();
 	}
 	
+	void resumesCountdownTimer() {
+		driver.resumesCountdownTimer();
+	}
+	
     void hasShownCountdownTimerDecrementingEverySecondFor(Integer value){
     	driver.sleep(value*1000);
     	driver.showCountdownTimerWithValue(TIMER_STOP_VALUE);

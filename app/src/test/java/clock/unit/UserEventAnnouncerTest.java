@@ -50,5 +50,21 @@ class UserEventAnnouncerTest {
 
 		context.assertIsSatisfied();
 	}
+	
+	@Test
+	@Order(3)
+	void notifiesTimerResumedWhenResumeTimerEventReceived() {
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).onResume();
+			}
+		});
+
+		final TimerEvent event = TimerEvent.RESUME; 
+		announcer.announce(event);
+
+		context.assertIsSatisfied();
+	}
 
 }

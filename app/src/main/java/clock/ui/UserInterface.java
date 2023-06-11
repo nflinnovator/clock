@@ -49,7 +49,7 @@ public class UserInterface {
 					announcer.announce(TimerEvent.PAUSE);
 				} else if (displayStartButtonText(CountdownTimerStatus.PAUSED)
 						.equals(((Button) event.getSource()).getText())) {
-					System.out.println("RESUMED");
+					announcer.announce(TimerEvent.RESUME);
 				} else if (displayStartButtonText(CountdownTimerStatus.STOPPED)
 						.equals(((Button) event.getSource()).getText())) {
 					announcer.announce(TimerEvent.START);

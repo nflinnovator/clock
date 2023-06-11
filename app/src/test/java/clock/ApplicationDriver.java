@@ -58,11 +58,15 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	}
 
 	void startCountdownTimer() {
-		startOrPauseCountdownTimer();
+		startOrPauseOrResumeCountdownTimer();
 	}
 
 	void pausesCountdownTimer() {
-		startOrPauseCountdownTimer();
+		startOrPauseOrResumeCountdownTimer();
+	}
+	
+	void resumesCountdownTimer() {
+		startOrPauseOrResumeCountdownTimer();
 	}
 
 	void showsStartButtonWithText(String text) {
@@ -79,7 +83,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		FxToolkit.cleanupApplication(new ApplicationAdapter(this));
 	}
 
-	private void startOrPauseCountdownTimer() {
+	private void startOrPauseOrResumeCountdownTimer() {
 		sleep(500);
 		clickOn(node(START_BUTTON_ID));
 	}

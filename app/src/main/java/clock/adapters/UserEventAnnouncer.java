@@ -5,7 +5,7 @@ import clock.domain.UserEventListener;
 public class UserEventAnnouncer {
 	
 	public enum TimerEvent{
-		START,PAUSE;
+		START,PAUSE,RESUME;
 	}
 	
 	private final UserEventListener listener;
@@ -23,6 +23,10 @@ public class UserEventAnnouncer {
 		}
 		case PAUSE: {
 		     listener.onPause();
+		     break;
+		}
+		case RESUME: {
+		     listener.onResume();
 		     break;
 		}
 		default:

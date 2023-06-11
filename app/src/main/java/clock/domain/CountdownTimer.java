@@ -29,7 +29,8 @@ public class CountdownTimer implements UserEventListener {
 		runCount++;
 		state = new CountdownTimerState(duration, runCount, CountdownTimerStatus.ON);
 		listener.startCountdownTimer();
-		executor.execute(new CountdownRunner());
+		final var currentValue = runCount == 1 ? state.currentValue() : state.currentValue() + 1;
+		executor.execute(new CountdownRunner(currentValue));
 	}
 
 	@Override
@@ -38,13 +39,24 @@ public class CountdownTimer implements UserEventListener {
 		listener.pauseCountdownTimer();
 	}
 
+	@Override
+	public void onResume() {
+		state = new CountdownTimerState(state.currentValue(), runCount, CountdownTimerStatus.ON);
+		listener.resumeCountdownTimer();
+		executor.execute(new CountdownRunner(state.currentValue()));
+	}
+
 	public CountdownTimerState getCurrentState() {
 		return state;
 	}
 
 	private class CountdownRunner implements Runnable {
 
-		private Integer currentValue = runCount == 1 ? state.currentValue() : state.currentValue() + 1;
+		private Integer currentValue;
+
+		CountdownRunner(Integer currentValue) {
+			this.currentValue = currentValue;
+		}
 
 		@Override
 		public void run() {

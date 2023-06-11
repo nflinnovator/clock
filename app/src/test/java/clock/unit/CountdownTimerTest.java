@@ -124,6 +124,21 @@ class CountdownTimerTest {
 		assertThat(CountdownTimerStatus.PAUSED, equalTo(status()));
 	}
 	
+	@Test
+	@Order(7)
+	void sendsNptificationWhenReceivesCountdownTimerResumedEvent() {
+		
+		context.checking(new Expectations() {{
+			oneOf(listener).resumeCountdownTimer();then(state.is("On"));
+		}});
+		
+		timer.onResume();
+		
+		context.assertIsSatisfied();
+		
+		assertThat(CountdownTimerStatus.ON, equalTo(status()));
+	}
+	
 	private CountdownTimerStatus status() {
 		return timer.getCurrentState().status();
 	}

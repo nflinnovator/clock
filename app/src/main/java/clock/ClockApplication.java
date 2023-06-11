@@ -45,6 +45,11 @@ public class ClockApplication extends Application implements CountdownTimerListe
 	public void pauseCountdownTimer() {
 		Platform.runLater(() -> updateUserInterface());
 	}
+	
+	@Override
+	public void resumeCountdownTimer() {
+		Platform.runLater(() -> updateUserInterface());
+	}
 
 	private void updateUserInterface() {
 		userInterface.update(timer);

@@ -88,6 +88,19 @@ public class CountdownTimerAcceptanceTests {
 		application.showsCountdownTimerHasPaused();
 	}
 	
+	@Test
+	@Order(6)
+	void countdownTimerResumesWhenResumeButtonIsClicked() throws InterruptedException {
+		application.launches();
+		application.startsCountdownTimer();
+		application.pausesCountdownTimer();
+		application.showsCountdownTimerHasPaused();
+		application.resumesCountdownTimer();
+		application.showsCountdownTimerWithStatus(STATUS_ON);
+		application.showsStartButtonWithText(ON_BUTTON_TEXT);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE-1);
+	}
+	
 	// Launch the app with CLI arguments
 
 	@AfterEach
