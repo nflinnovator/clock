@@ -17,8 +17,11 @@ Clock is a java client application that enables its users to utilize it either a
 - [ ] Resume the stopwatch
 - [ ] Reset the stopwatch
 #### Countdown timer
-- [x] launch a countdown timer
-- [ ] abort a countdown timer
+- [x] launch countdown timer
+- [x] display current countdown timer state
+- [x] pause countdown timer
+- [ ] resume countdown timer
+- [ ] abort countdown timer
 #### General
 - [ ] enable a tick sound every second
 - [ ] disable a tick sound every second
