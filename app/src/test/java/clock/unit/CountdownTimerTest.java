@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import clock.domain.CountdownTimer;
+import clock.domain.CountdownTimer.CountdownTimerStatus;
 import clock.domain.CountdownTimerListener;
 
 @DisplayName("Countdown Timer Unit Test Case")
@@ -30,7 +31,7 @@ class CountdownTimerTest {
 	@Test
 	@Order(1)
 	void timerStartsInTheRightState() {
-		assertThat(Boolean.FALSE, equalTo(status()));
+		assertThat(CountdownTimerStatus.OFF, equalTo(status()));
 		assertThat(duration, equalTo(currentValue()));
 		assertThat(0, equalTo(runCount()));
 	}
@@ -49,7 +50,7 @@ class CountdownTimerTest {
 		
 		context.assertIsSatisfied();
 		
-		assertThat(Boolean.TRUE, equalTo(status()));
+		assertThat(CountdownTimerStatus.ON, equalTo(status()));
 		assertThat(duration, equalTo(currentValue()));
 		assertThat(1, equalTo(runCount()));
 	}
@@ -68,7 +69,7 @@ class CountdownTimerTest {
 		
 		context.assertIsSatisfied();
 		
-		assertThat(Boolean.FALSE, equalTo(status()));
+		assertThat(CountdownTimerStatus.STOPPED, equalTo(status()));
 		assertThat(currentValue(),equalTo(0));
 		assertThat(1, equalTo(runCount()));
 	}
@@ -103,12 +104,27 @@ class CountdownTimerTest {
 		
 		context.assertIsSatisfied();
 		
-		assertThat(Boolean.TRUE, equalTo(status()));
+		assertThat(CountdownTimerStatus.ON, equalTo(status()));
 		assertThat(duration, equalTo(currentValue()));
 		assertThat(2, equalTo(runCount()));
 	}
 	
-	private Boolean status() {
+	@Test
+	@Order(6)
+	void sendsNptificationWhenReceivesCountdownTimerPausedEvent() {
+		
+		context.checking(new Expectations() {{
+			oneOf(listener).pauseCountdownTimer();then(state.is("Paused"));
+		}});
+		
+		timer.onPause();
+		
+		context.assertIsSatisfied();
+		
+		assertThat(CountdownTimerStatus.PAUSED, equalTo(status()));
+	}
+	
+	private CountdownTimerStatus status() {
 		return timer.getCurrentState().status();
 	}
 	

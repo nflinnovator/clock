@@ -4,8 +4,6 @@
 package clock;
 
 import static clock.ClockApplication.TIMER_INITIAL_VALUE;
-import static clock.ui.UserInterface.START_BUTTON_TEXT;
-import static clock.ui.UserInterface.PAUSE_BUTTON_TEXT;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +19,12 @@ public class CountdownTimerAcceptanceTests {
 
 	public static final String STATUS_OFF = "OFF";
 	public static final String STATUS_ON = "ON";
+	public static final String STATUS_PAUSE = "PAUSED";
+	public static final String STATUS_STOPPED = "STOPPED";
+	public static final String OFF_BUTTON_TEXT = "Start";
+	public static final String ON_BUTTON_TEXT = "Pause";
+	public static final String PAUSED_BUTTON_TEXT = "Resume";
+	public static final String STOPPED_BUTTON_TEXT = "Restart";
 	public static final Integer RUN_COUNT = 0;
 	public static final Integer TIMER_STOP_VALUE = 0;
 	
@@ -43,32 +47,31 @@ public class CountdownTimerAcceptanceTests {
 	void startCountdownTimerAndItUpdatesCountdownTimerStatus() {
 		application.launches();
 		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
+		application.showsStartButtonWithText(OFF_BUTTON_TEXT);
 		application.startsCountdownTimer();
 		application.showsCountdownTimerWithStatus(STATUS_ON);
+		application.showsStartButtonWithText(ON_BUTTON_TEXT);
 		application.showsCountdownTimerWithRunCount(RUN_COUNT + 1);
 	}
 	
 	@Test
 	@Order(3)
-	void startCountdownTimerForTheFirstTimeAndItStartsDecrementingEverySecond() throws InterruptedException {
+	void startCountdownTimerForTheFirstTimeAndItStartsDecrementingEverySecond(){
 		application.launches();
-		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 		application.startsCountdownTimer();
-		application.showsCountdownTimerWithStatus(STATUS_ON);
 		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_OFF);
+		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
+		application.showsStartButtonWithText(STOPPED_BUTTON_TEXT);
 	}
 	
 	@Test
 	@Order(4)
 	void startCountdownTimerNotForTheFirstTimeAndItStartsWithTheRightInitialValue() throws InterruptedException {
 		application.launches();
-		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 		application.startsCountdownTimer();
-		application.showsCountdownTimerWithStatus(STATUS_ON);
 		application.showsCountdownTimerWithRunCount(RUN_COUNT + 1);
 		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_OFF);
+		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
 		application.pause();
 		application.startsCountdownTimer();
 		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT+2,STATUS_ON);
@@ -76,13 +79,16 @@ public class CountdownTimerAcceptanceTests {
 	
 	@Test
 	@Order(5)
-	void startButtonBecomesPauseButtonWhenTimerIsRunningAndBackToStartButtonWhenTimerTimesOut() throws InterruptedException {
+	void countdownTimerPausesWhenPauseButtonIsClicked() throws InterruptedException {
 		application.launches();
 		application.startsCountdownTimer();
-		application.showsStartAndPauseButtonWithText(PAUSE_BUTTON_TEXT);
-		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsStartAndPauseButtonWithText(START_BUTTON_TEXT);
+		application.pausesCountdownTimer();
+		application.showsCountdownTimerWithStatus(STATUS_PAUSE);
+		application.showsStartButtonWithText(PAUSED_BUTTON_TEXT);
+		application.showsCountdownTimerHasPaused();
 	}
+	
+	// Launch the app with CLI arguments
 
 	@AfterEach
 	void closeApplication() throws Exception {

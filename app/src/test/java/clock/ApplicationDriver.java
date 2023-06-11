@@ -1,13 +1,11 @@
 package clock;
 
 import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
-import static clock.ui.UserInterface.START_AND_PAUSE_BUTTON_ID;
+import static clock.ui.UserInterface.START_BUTTON_ID;
 import static clock.ui.UserInterface.STATUS_LABEL_ID;
 import static clock.ui.UserInterface.TIMER_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
-
-import java.util.concurrent.TimeUnit;
 
 import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
@@ -20,7 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
 class ApplicationDriver extends FxRobot implements ApplicationFixture {
-	
+
 	private static final String NO_PARAMETER = null;
 
 	private void launch(Class<? extends Application> appClass, String... appArgs) throws Exception {
@@ -32,41 +30,44 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		FxToolkit.registerPrimaryStage();
 		FxToolkit.setupApplication(() -> new ApplicationAdapter(this));
 	}
-	
+
 	void startApplication() throws Exception {
 		launch(ClockApplication.class, NO_PARAMETER);
 	}
-	
-	void showsCountdownTimerWithValues(Integer value,Integer runCount,String status) {
-		sleep(900, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(value)));
-		verifyThat(formatId(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
-		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
+
+	void showsCountdownTimerWithValues(Integer value, Integer runCount, String status) {
+		sleep(400);
+		verifyThat(node(TIMER_LABEL_ID), hasText(String.valueOf(value)));
+		verifyThat(node(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
+		verifyThat(node(STATUS_LABEL_ID), hasText(status));
 	}
 
 	void showCountdownTimerWithValue(Integer value) {
-		sleep(1000, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(TIMER_LABEL_ID), hasText(String.valueOf(value)));
+		sleep(100);
+		verifyThat(node(TIMER_LABEL_ID), hasText(String.valueOf(value)));
 	}
-	
+
 	void showCountdownTimerWithRunCount(Integer runCount) {
-		sleep(1000, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
+		sleep(100);
+		verifyThat(node(RUN_COUNT_LABEL_ID), hasText(String.valueOf(runCount)));
 	}
-	
+
 	void showCountdownTimerWithStatus(String status) {
-		sleep(1000, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(STATUS_LABEL_ID), hasText(status));
+		sleep(100);
+		verifyThat(node(STATUS_LABEL_ID), hasText(status));
 	}
-    
+
 	void startCountdownTimer() {
-		sleep(1000, TimeUnit.MILLISECONDS);
-		clickOn(formatId(START_AND_PAUSE_BUTTON_ID));
+		startOrPauseCountdownTimer();
 	}
-	
-	void showsStartAndPauseButtonWithText(String text) {
-		sleep(1000, TimeUnit.MILLISECONDS);
-		verifyThat(formatId(START_AND_PAUSE_BUTTON_ID), hasText(text));
+
+	void pausesCountdownTimer() {
+		startOrPauseCountdownTimer();
+	}
+
+	void showsStartButtonWithText(String text) {
+		sleep(100);
+		verifyThat(node(START_BUTTON_ID), hasText(text));
 	}
 
 	void dispose() throws Exception {
@@ -77,9 +78,14 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		FxToolkit.cleanupStages();
 		FxToolkit.cleanupApplication(new ApplicationAdapter(this));
 	}
-	
-	private String formatId(String id) {
-		return "#"+id;
+
+	private void startOrPauseCountdownTimer() {
+		sleep(500);
+		clickOn(node(START_BUTTON_ID));
+	}
+
+	private String node(String id) {
+		return "#" + id;
 	}
 
 	@Override

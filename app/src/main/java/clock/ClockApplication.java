@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 public class ClockApplication extends Application implements CountdownTimerListener {
 
-	public static final Integer TIMER_INITIAL_VALUE = 3;
+	public static final Integer TIMER_INITIAL_VALUE = 5;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final CountdownTimer timer = new CountdownTimer(TIMER_INITIAL_VALUE, executor, this);
 	private UserInterface userInterface;
@@ -38,6 +38,11 @@ public class ClockApplication extends Application implements CountdownTimerListe
 	
 	@Override
 	public void timeoutCountdownTimer() {
+		Platform.runLater(() -> updateUserInterface());
+	}
+	
+	@Override
+	public void pauseCountdownTimer() {
 		Platform.runLater(() -> updateUserInterface());
 	}
 

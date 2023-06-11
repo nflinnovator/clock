@@ -4,4 +4,5 @@ import java.util.EventListener;
 
 public interface UserEventListener extends EventListener{
   void onStart();
+  void onPause();
 }

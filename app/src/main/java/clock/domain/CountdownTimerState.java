@@ -1,3 +1,5 @@
 package clock.domain;
 
-public record CountdownTimerState(Integer currentValue,Integer runCount,boolean status) {}
+import clock.domain.CountdownTimer.CountdownTimerStatus;
+
+public record CountdownTimerState(Integer currentValue,Integer runCount,CountdownTimerStatus status) {}

@@ -1,8 +1,7 @@
 package clock;
 
+import static clock.ClockApplication.TIMER_INITIAL_VALUE;
 import static clock.CountdownTimerAcceptanceTests.TIMER_STOP_VALUE;
-
-import java.util.concurrent.CountDownLatch;
 
 class ApplicationRunner {
 
@@ -52,14 +51,23 @@ class ApplicationRunner {
 		driver.startCountdownTimer();
 	}
 	
-    void hasShownCountdownTimerDecrementingEverySecondFor(Integer value) throws InterruptedException {
-    	final var signal = new CountDownLatch(value);
-    	signal.countDown();
+	void pausesCountdownTimer() {
+		driver.pausesCountdownTimer();
+	}
+	
+    void hasShownCountdownTimerDecrementingEverySecondFor(Integer value){
+    	driver.sleep(value*1000);
     	driver.showCountdownTimerWithValue(TIMER_STOP_VALUE);
 	}
     
-    void showsStartAndPauseButtonWithText(String text){
-    	driver.showsStartAndPauseButtonWithText(text);
+    void showsStartButtonWithText(String text){
+    	driver.showsStartButtonWithText(text);
+    }
+    
+    void showsCountdownTimerHasPaused() {
+    	driver.showCountdownTimerWithValue(TIMER_INITIAL_VALUE - 1);
+    	driver.sleep(2000);
+    	driver.showCountdownTimerWithValue(TIMER_INITIAL_VALUE - 1);
     }
 
 	void close() throws Exception {

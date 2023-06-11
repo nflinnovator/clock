@@ -8,4 +8,6 @@ public interface CountdownTimerListener extends EventListener {
 	void updateCountdownTimer();
 	
 	void timeoutCountdownTimer();
+	
+	void pauseCountdownTimer();
 }
