@@ -101,6 +101,27 @@ public class CountdownTimerAcceptanceTests {
 		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE-1);
 	}
 	
+	@Test
+	@Order(7)
+	void countdownTimerStopsWhenStopButtonIsClicked() throws InterruptedException {
+		application.launches();
+		application.startsCountdownTimer();
+		application.stopsCountdownTimer();
+		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
+		application.showsStartButtonWithText(STOPPED_BUTTON_TEXT);
+	}
+	
+	/*
+	@Test
+	@Order(8)
+	void stopCountdownTimerOnlyWhenItHasStarted() throws InterruptedException {
+		application.launches();
+		application.hasDisabledStopButton();
+		application.startsCountdownTimer();
+		application.stopsCountdownTimer();
+	}*/
+	
+	// stop countdown only when it has started
 	// Launch the app with CLI arguments
 
 	@AfterEach

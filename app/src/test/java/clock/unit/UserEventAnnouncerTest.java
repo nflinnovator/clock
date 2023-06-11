@@ -66,5 +66,21 @@ class UserEventAnnouncerTest {
 
 		context.assertIsSatisfied();
 	}
+	
+	@Test
+	@Order(4)
+	void notifiesTimerStoppedWhenStopTimerEventReceived() {
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).onStop();
+			}
+		});
+
+		final TimerEvent event = TimerEvent.STOP; 
+		announcer.announce(event);
+
+		context.assertIsSatisfied();
+	}
 
 }

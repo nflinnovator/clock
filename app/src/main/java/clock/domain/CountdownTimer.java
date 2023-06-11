@@ -46,6 +46,12 @@ public class CountdownTimer implements UserEventListener {
 		executor.execute(new CountdownRunner(state.currentValue()));
 	}
 
+	@Override
+	public void onStop() {
+		state = new CountdownTimerState(STOP_VALUE, runCount, CountdownTimerStatus.STOPPED);
+		listener.stopCountdownTimer();
+	}
+
 	public CountdownTimerState getCurrentState() {
 		return state;
 	}
@@ -76,7 +82,7 @@ public class CountdownTimer implements UserEventListener {
 
 		private Boolean canRun() {
 			return (currentValue > STOP_VALUE ? Boolean.TRUE : Boolean.FALSE)
-					&& (!state.status().equals(CountdownTimerStatus.PAUSED));
+					&& (state.status().equals(CountdownTimerStatus.ON));
 		}
 
 		private Boolean isNotLastRound() {

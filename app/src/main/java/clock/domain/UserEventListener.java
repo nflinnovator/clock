@@ -6,4 +6,5 @@ public interface UserEventListener extends EventListener{
   void onStart();
   void onPause();
   void onResume();
+  void onStop();
 }

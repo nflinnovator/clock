@@ -12,4 +12,6 @@ public interface CountdownTimerListener extends EventListener {
 	void pauseCountdownTimer();
 	
 	void resumeCountdownTimer();
+	
+	void stopCountdownTimer();
 }

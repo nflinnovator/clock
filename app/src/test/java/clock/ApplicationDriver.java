@@ -2,17 +2,21 @@ package clock;
 
 import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
 import static clock.ui.UserInterface.START_BUTTON_ID;
+import static clock.ui.UserInterface.STOP_BUTTON_ID;
 import static clock.ui.UserInterface.STATUS_LABEL_ID;
 import static clock.ui.UserInterface.TIMER_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
+import static org.testfx.matcher.base.GeneralMatchers.typeSafeMatcher;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
+import org.hamcrest.Matcher;
 import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationAdapter;
 import org.testfx.framework.junit5.ApplicationFixture;
 
 import javafx.application.Application;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
@@ -68,10 +72,20 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	void resumesCountdownTimer() {
 		startOrPauseOrResumeCountdownTimer();
 	}
+	
+	void stopsCountdownTimer() {
+		sleep(500);
+		clickOn(node(STOP_BUTTON_ID));
+	}
 
 	void showsStartButtonWithText(String text) {
 		sleep(100);
 		verifyThat(node(START_BUTTON_ID), hasText(text));
+	}
+	
+	void hasDisabledStopButton() {
+		sleep(500);
+		verifyThat(node(STOP_BUTTON_ID), isDisabled());
 	}
 
 	void dispose() throws Exception {
@@ -103,4 +117,8 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	@Override
 	public void stop() throws Exception {
 	}
+	
+	private Matcher<Button> isDisabled() {
+        return typeSafeMatcher(Button.class,"Button "+"is Disabled", Button::isDisabled);
+    }
 }

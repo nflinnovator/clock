@@ -23,11 +23,12 @@ public class UserInterface {
 	public final static String RUN_COUNT_LABEL_ID = "runCountLabelId";
 	public final static String STATUS_LABEL_ID = "statusLabelId";
 	public final static String START_BUTTON_ID = "startButtonId";
+	public final static String STOP_BUTTON_ID = "stopButtonId";
 
 	private static final String APPLICATION_NAME = "Clock Application";
 
 	private Label statusLabel, timerLabel, runCountLabel;
-	private Button startAndPauseTimerButton;
+	private Button startTimerButton, stopTimerButton;
 	private Pane root;
 
 	public UserInterface(Stage stage, CountdownTimer timer) {
@@ -35,9 +36,8 @@ public class UserInterface {
 		timerLabel = createLabel(String.valueOf(timer.getCurrentState().currentValue()), TIMER_LABEL_ID);
 		runCountLabel = createLabel(String.valueOf(timer.getCurrentState().runCount()), RUN_COUNT_LABEL_ID);
 		statusLabel = createLabel(displayStatus(timer.getCurrentState().status()), STATUS_LABEL_ID);
-		startAndPauseTimerButton = createButton(displayStartButtonText(timer.getCurrentState().status()),
-				START_BUTTON_ID);
-		startAndPauseTimerButton.setOnAction(new EventHandler<ActionEvent>() {
+		startTimerButton = createButton(displayStartButtonText(timer.getCurrentState().status()), START_BUTTON_ID);
+		startTimerButton.setOnAction(new EventHandler<ActionEvent>() {
 			final UserEventAnnouncer announcer = new UserEventAnnouncer(timer);
 
 			@Override
@@ -58,7 +58,18 @@ public class UserInterface {
 				}
 			}
 		});
-		addToRoot(statusLabel, runCountLabel, timerLabel, startAndPauseTimerButton);
+		stopTimerButton = createButton("Stop", STOP_BUTTON_ID);
+		stopTimerButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			final UserEventAnnouncer announcer = new UserEventAnnouncer(timer);
+
+			@Override
+			public void handle(ActionEvent event) {
+				announcer.announce(TimerEvent.STOP);
+			}
+
+		});
+		addToRoot(statusLabel, runCountLabel, timerLabel, startTimerButton, stopTimerButton);
 		final var scene = new Scene(root, 300, 400);
 		stage.setScene(scene);
 		stage.setTitle(APPLICATION_NAME);
@@ -73,7 +84,7 @@ public class UserInterface {
 	}
 
 	private void updateStartAndPauseButtonText(CountdownTimerStatus status) {
-		startAndPauseTimerButton.setText(displayStartButtonText(status));
+		startTimerButton.setText(displayStartButtonText(status));
 	}
 
 	private void updateStatusLabel(CountdownTimerStatus status) {

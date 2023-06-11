@@ -52,6 +52,11 @@ public class ClockApplication extends Application {
 		public void resumeCountdownTimer() {
 			updateUserInterface();
 		}
+		
+		@Override
+		public void stopCountdownTimer() {
+			updateUserInterface();
+		}
 
 		private void updateUserInterface() {
 			Platform.runLater(() -> userInterface.update(timer));
