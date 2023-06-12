@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 
 import clock.domain.CountdownTimer;
 import clock.domain.CountdownTimerListener;
+import clock.domain.CountdownTimerState;
 import clock.ui.UserInterface;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -28,39 +29,16 @@ public class ClockApplication extends Application {
 	}
 
 	private class CountdownTimerStateNotifier implements CountdownTimerListener {
+		
 		@Override
-		public void startCountdownTimer() {
-			updateUserInterface();
-		}
-
-		@Override
-		public void updateCountdownTimer() {
-			updateUserInterface();
-		}
-
-		@Override
-		public void timeoutCountdownTimer() {
-			updateUserInterface();
-		}
-
-		@Override
-		public void pauseCountdownTimer() {
-			updateUserInterface();
-		}
-
-		@Override
-		public void resumeCountdownTimer() {
+		public void countdownTimerStateChanged(CountdownTimerState newState) {
 			updateUserInterface();
 		}
 		
-		@Override
-		public void stopCountdownTimer() {
-			updateUserInterface();
-		}
-
 		private void updateUserInterface() {
 			Platform.runLater(() -> userInterface.update(timer));
 		}
+
 	}
 
 }

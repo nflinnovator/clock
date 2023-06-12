@@ -11,7 +11,7 @@ public class CountdownTimer implements UserEventListener {
 	private static final Integer STOP_VALUE = 0;
 
 	private final Integer duration;
-	private Integer runCount;
+	private Integer runCount = 0;
 	private CountdownTimerState state;
 	private final Executor executor;
 	private final CountdownTimerListener listener;
@@ -20,36 +20,38 @@ public class CountdownTimer implements UserEventListener {
 		this.duration = duration;
 		this.executor = executor;
 		this.listener = listener;
-		runCount = 0;
 		state = new CountdownTimerState(duration, runCount, CountdownTimerStatus.OFF);
 	}
 
 	@Override
 	public void onStart() {
 		runCount++;
-		state = new CountdownTimerState(duration, runCount, CountdownTimerStatus.ON);
-		listener.startCountdownTimer();
-		final var currentValue = runCount == 1 ? state.currentValue() : state.currentValue() + 1;
-		executor.execute(new CountdownRunner(currentValue));
+		final var initialValue = initializeWithCorrectDuration();
+		state = new CountdownTimerState(initialValue, runCount, CountdownTimerStatus.ON);
+		executor.execute(new CountdownRunner(initialValue));
+	}
+	
+	private Integer initializeWithCorrectDuration() {
+		return runCount > 1 ? duration + 1 : duration;
 	}
 
 	@Override
 	public void onPause() {
 		state = new CountdownTimerState(state.currentValue(), runCount, CountdownTimerStatus.PAUSED);
-		listener.pauseCountdownTimer();
+		listener.countdownTimerStateChanged(state);
 	}
 
 	@Override
 	public void onResume() {
 		state = new CountdownTimerState(state.currentValue(), runCount, CountdownTimerStatus.ON);
-		listener.resumeCountdownTimer();
-		executor.execute(new CountdownRunner(state.currentValue()));
+		listener.countdownTimerStateChanged(state);
+		executor.execute(new CountdownRunner(state.currentValue()+1));
 	}
 
 	@Override
 	public void onStop() {
 		state = new CountdownTimerState(STOP_VALUE, runCount, CountdownTimerStatus.STOPPED);
-		listener.stopCountdownTimer();
+		listener.countdownTimerStateChanged(state);
 	}
 
 	public CountdownTimerState getCurrentState() {
@@ -69,25 +71,22 @@ public class CountdownTimer implements UserEventListener {
 			while (canRun()) {
 				countdown();
 				state = new CountdownTimerState(currentValue, runCount, CountdownTimerStatus.ON);
-				listener.updateCountdownTimer();
-				if (isNotLastRound()) {
-					pauseForOneSecond();
-				} else {
-					state = new CountdownTimerState(currentValue, runCount, CountdownTimerStatus.STOPPED);
-					listener.timeoutCountdownTimer();
-				}
-
+				listener.countdownTimerStateChanged(state);
+				pauseForOneSecond();
+			}
+			if (hasExpired()) {
+				state = new CountdownTimerState(STOP_VALUE, runCount, CountdownTimerStatus.STOPPED);
+				listener.countdownTimerStateChanged(state);
 			}
 		}
 
 		private Boolean canRun() {
-			return (currentValue > STOP_VALUE ? Boolean.TRUE : Boolean.FALSE)
-					&& (state.status().equals(CountdownTimerStatus.ON));
+			return (currentValue > STOP_VALUE && !(CountdownTimerStatus.PAUSED.equals(state.status())
+					|| CountdownTimerStatus.STOPPED.equals(state.status())));
 		}
 
-		private Boolean isNotLastRound() {
-			final var lastRound = 0;
-			return currentValue > lastRound ? Boolean.TRUE : Boolean.FALSE;
+		private Boolean hasExpired() {
+			return currentValue == STOP_VALUE;
 		}
 
 		private void countdown() {

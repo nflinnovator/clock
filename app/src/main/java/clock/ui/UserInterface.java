@@ -59,6 +59,7 @@ public class UserInterface {
 			}
 		});
 		stopTimerButton = createButton("Stop", STOP_BUTTON_ID);
+		stopTimerButton.setDisable(disableStopButton(timer.getCurrentState().status()));
 		stopTimerButton.setOnAction(new EventHandler<ActionEvent>() {
 
 			final UserEventAnnouncer announcer = new UserEventAnnouncer(timer);
@@ -81,6 +82,7 @@ public class UserInterface {
 		updateStatusLabel(timer.getCurrentState().status());
 		updateTimerLabel(timer.getCurrentState().currentValue());
 		updateRunCountLabel(timer.getCurrentState().runCount());
+		updateStopButtonDisability(timer.getCurrentState().status());
 	}
 
 	private void updateStartAndPauseButtonText(CountdownTimerStatus status) {
@@ -97,6 +99,10 @@ public class UserInterface {
 
 	private void updateRunCountLabel(Integer runCount) {
 		runCountLabel.setText(String.valueOf(runCount));
+	}
+	
+	private void updateStopButtonDisability(CountdownTimerStatus status) {
+		stopTimerButton.setDisable(disableStopButton(status));
 	}
 
 	private String displayStatus(CountdownTimerStatus status) {
@@ -135,6 +141,13 @@ public class UserInterface {
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + status);
 		}
+	}
+	
+	private boolean disableStopButton(CountdownTimerStatus status) {
+		if(CountdownTimerStatus.ON.equals(status) || CountdownTimerStatus.PAUSED.equals(status)) {
+			return false;
+		}
+		return true;
 	}
 
 	private Label createLabel(String value, String id) {

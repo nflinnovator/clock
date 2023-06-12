@@ -1,8 +1,11 @@
 package clock.unit;
 
+import static clock.domain.CountdownTimer.CountdownTimerStatus.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import org.hamcrest.FeatureMatcher;
+import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.States;
@@ -16,156 +19,142 @@ import org.junit.jupiter.api.TestMethodOrder;
 import clock.domain.CountdownTimer;
 import clock.domain.CountdownTimer.CountdownTimerStatus;
 import clock.domain.CountdownTimerListener;
+import clock.domain.CountdownTimerState;
 
 @DisplayName("Countdown Timer Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CountdownTimerTest {
-	
+
 	private final Mockery context = new Mockery();
 	private final Integer duration = 1;
-    private final DeterministicExecutor executor = new DeterministicExecutor();
+	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final CountdownTimerListener listener = context.mock(CountdownTimerListener.class);
-	private final CountdownTimer timer = new CountdownTimer(duration,executor,listener);
-	private final States state = context.states("state").startsAs("Off");
-	
+	private final CountdownTimer timer = new CountdownTimer(duration, executor, listener);
+
 	@Test
 	@Order(1)
-	void timerStartsInTheRightState() {
-		assertThat(CountdownTimerStatus.OFF, equalTo(status()));
-		assertThat(duration, equalTo(currentValue()));
-		assertThat(0, equalTo(runCount()));
+	void countdownTimerStartsInTheRightState() {
+		assertThat(status(), equalTo(OFF));
+		assertThat(currentValue(), equalTo(duration));
+		assertThat(runCount(), equalTo(0));
 	}
-	
+
 	@Test
 	@Order(2)
-	void reportsStartedWhenReceivesTimerStartedEvent() {
-		
-		context.checking(new Expectations() {{
-			oneOf(listener).startCountdownTimer();then(state.is("On"));
-			ignoring(listener).updateCountdownTimer();
-			ignoring(listener).timeoutCountdownTimer();
-		}});
-		
+	void notifiesRunningWhenCountdownTimerIsRunning() {
+
+		context.checking(new Expectations() {
+			{
+				exactly(duration).of(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(ON)));
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+			}
+		});
+
 		timer.onStart();
-		
+		executor.runUntilIdle();
+
 		context.assertIsSatisfied();
 		
-		assertThat(CountdownTimerStatus.ON, equalTo(status()));
-		assertThat(duration, equalTo(currentValue()));
-		assertThat(1, equalTo(runCount()));
+		assertThat(runCount(), equalTo(1));
 	}
-	
+
 	@Test
 	@Order(3)
-	void sendsUpdatesEverySecondOnceStarted() {
-		context.checking(new Expectations() {{
-			allowing(listener).startCountdownTimer();then(state.is("On"));
-			exactly(duration).of(listener).updateCountdownTimer();when(state.is("On"));
-			ignoring(listener).timeoutCountdownTimer();
-		}});
-		
+	void notifiesStoppedWhenCountdownTimerStops() {
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(ON)));
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+			}
+		});
+
 		timer.onStart();
 		executor.runUntilIdle();
-		
+
 		context.assertIsSatisfied();
-		
-		assertThat(CountdownTimerStatus.STOPPED, equalTo(status()));
-		assertThat(currentValue(),equalTo(0));
-		assertThat(1, equalTo(runCount()));
+
+		assertThat(currentValue(), equalTo(0));
+		assertThat(runCount(), equalTo(1));
 	}
-	
+
 	@Test
 	@Order(4)
-	void reportsTimeoutWhenCountdownGetsToZero() {
-		context.checking(new Expectations() {{
-			allowing(listener).startCountdownTimer();then(state.is("On"));
-			allowing(listener).updateCountdownTimer();when(state.is("On"));
-			oneOf(listener).timeoutCountdownTimer();then(state.is("Off"));
-		}});
-		
+	void notifiesPausedWhenReceivesCountdownTimerPausedEvent() {
+
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(ON)));
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
+			}
+		});
+
 		timer.onStart();
-		executor.runUntilIdle();
-		
+		timer.onPause();
+
 		context.assertIsSatisfied();
-		
+
+		assertThat(runCount(), equalTo(1));
 	}
-	
+
 	@Test
 	@Order(5)
-	void timerIsInTheRightStateWhenStartedSeveralTimes() {
-		context.checking(new Expectations() {{
-			exactly(2).of(listener).startCountdownTimer();then(state.is("On"));
-			ignoring(listener).updateCountdownTimer();
-			ignoring(listener).timeoutCountdownTimer();
-		}});
-		
-		timer.onStart();
-		timer.onStart();
-		
+	void sendsNptificationWhenReceivesCountdownTimerResumedEvent() {
+
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
+				atLeast(1).of(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(ON)));
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+			}
+		});
+
+		timer.onPause();
+		timer.onResume();
+		executor.runUntilIdle();
+
 		context.assertIsSatisfied();
-		
-		assertThat(CountdownTimerStatus.ON, equalTo(status()));
-		assertThat(duration, equalTo(currentValue()));
-		assertThat(2, equalTo(runCount()));
+
+		assertThat(status(), equalTo(STOPPED));
 	}
-	
+
 	@Test
 	@Order(6)
-	void sendsNptificationWhenReceivesCountdownTimerPausedEvent() {
-		
-		context.checking(new Expectations() {{
-			oneOf(listener).pauseCountdownTimer();then(state.is("Paused"));
-		}});
-		
-		timer.onPause();
-		
-		context.assertIsSatisfied();
-		
-		assertThat(CountdownTimerStatus.PAUSED, equalTo(status()));
-	}
-	
-	@Test
-	@Order(7)
-	void sendsNptificationWhenReceivesCountdownTimerResumedEvent() {
-		
-		context.checking(new Expectations() {{
-			oneOf(listener).resumeCountdownTimer();then(state.is("On"));
-		}});
-		
-		timer.onResume();
-		
-		context.assertIsSatisfied();
-		
-		assertThat(CountdownTimerStatus.ON, equalTo(status()));
-	}
-	
-	@Test
-	@Order(8)
 	void sendsNptificationWhenReceivesCountdownTimerStoppedEvent() {
-		
-		context.checking(new Expectations() {{
-			oneOf(listener).stopCountdownTimer();then(state.is("Off"));
-		}});
-		
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+			}
+		});
+
 		timer.onStop();
-		
+
 		context.assertIsSatisfied();
-		
-		assertThat(CountdownTimerStatus.STOPPED, equalTo(status()));
-		assertThat(0,equalTo(currentValue()));
+
+		assertThat(status(), equalTo(STOPPED));
+		assertThat(currentValue(), equalTo(0));
 	}
-	
+
 	private CountdownTimerStatus status() {
 		return timer.getCurrentState().status();
 	}
-	
+
 	private Integer currentValue() {
 		return timer.getCurrentState().currentValue();
 	}
-	
+
 	private Integer runCount() {
 		return timer.getCurrentState().runCount();
 	}
 
+	private Matcher<CountdownTimerState> aCountdownTimerThatIs(final CountdownTimerStatus status) {
+		return new FeatureMatcher<CountdownTimerState, CountdownTimerStatus>(equalTo(status),
+				"countdown timer that is ", "was") {
+			@Override
+			protected CountdownTimerStatus featureValueOf(CountdownTimerState actual) {
+				return actual.status();
+			}
+		};
+	}
 
 }

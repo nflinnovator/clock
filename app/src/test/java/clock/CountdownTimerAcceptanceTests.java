@@ -121,7 +121,6 @@ public class CountdownTimerAcceptanceTests {
 		application.stopsCountdownTimer();
 	}*/
 	
-	// stop countdown only when it has started
 	// Launch the app with CLI arguments
 
 	@AfterEach
