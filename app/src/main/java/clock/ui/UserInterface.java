@@ -1,7 +1,7 @@
 package clock.ui;
 
-import clock.adapters.UserEventAnnouncer;
-import clock.adapters.UserEventAnnouncer.TimerEvent;
+import clock.adapters.TimerEventAnnouncer;
+import clock.adapters.TimerEventAnnouncer.TimerEvent;
 import clock.domain.CountdownTimer;
 import clock.domain.CountdownTimer.CountdownTimerStatus;
 import javafx.event.ActionEvent;
@@ -38,7 +38,7 @@ public class UserInterface {
 		statusLabel = createLabel(displayStatus(timer.getCurrentState().status()), STATUS_LABEL_ID);
 		startTimerButton = createButton(displayStartButtonText(timer.getCurrentState().status()), START_BUTTON_ID);
 		startTimerButton.setOnAction(new EventHandler<ActionEvent>() {
-			final UserEventAnnouncer announcer = new UserEventAnnouncer(timer);
+			final TimerEventAnnouncer announcer = new TimerEventAnnouncer(timer);
 
 			@Override
 			public void handle(ActionEvent event) {
@@ -62,7 +62,7 @@ public class UserInterface {
 		stopTimerButton.setDisable(disableStopButton(timer.getCurrentState().status()));
 		stopTimerButton.setOnAction(new EventHandler<ActionEvent>() {
 
-			final UserEventAnnouncer announcer = new UserEventAnnouncer(timer);
+			final TimerEventAnnouncer announcer = new TimerEventAnnouncer(timer);
 
 			@Override
 			public void handle(ActionEvent event) {

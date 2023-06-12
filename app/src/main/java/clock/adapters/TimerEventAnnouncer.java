@@ -2,7 +2,7 @@ package clock.adapters;
 
 import clock.domain.UserEventListener;
 
-public class UserEventAnnouncer {
+public class TimerEventAnnouncer {
 	
 	public enum TimerEvent{
 		START,PAUSE,RESUME,STOP;
@@ -10,7 +10,7 @@ public class UserEventAnnouncer {
 	
 	private final UserEventListener listener;
 	
-	public UserEventAnnouncer(UserEventListener listener) {
+	public TimerEventAnnouncer(UserEventListener listener) {
 	  this.listener = listener;
 	}
 

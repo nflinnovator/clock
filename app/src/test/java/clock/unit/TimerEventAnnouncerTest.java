@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import clock.adapters.UserEventAnnouncer;
-import clock.adapters.UserEventAnnouncer.TimerEvent;
+import clock.adapters.TimerEventAnnouncer;
+import clock.adapters.TimerEventAnnouncer.TimerEvent;
 import clock.domain.UserEventListener;
 
 @DisplayName("UserEventHandler Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class UserEventAnnouncerTest {
+class TimerEventAnnouncerTest {
 	private final Mockery context = new Mockery();
 	private final UserEventListener listener = context.mock(UserEventListener.class);
-	private final UserEventAnnouncer announcer = new UserEventAnnouncer(listener);
+	private final TimerEventAnnouncer announcer = new TimerEventAnnouncer(listener);
 
 	@Test
 	@Order(1)
