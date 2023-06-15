@@ -29,7 +29,6 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	@Override
 	public void onStart() {
 		runCount++;
-		final var initialValue = initializeWithCorrectDuration();
 		state = state.on(initialValue, runCount);
 		executor.execute(new CountdownRunner(initialValue));
 	}
@@ -55,10 +54,6 @@ public class SimpleCountdownTimer implements CountdownTimer {
 
 	public CountdownTimerState getCurrentState() {
 		return state;
-	}
-
-	private Integer initializeWithCorrectDuration() {
-		return runCount > 1 ? initialValue + 1 : initialValue;
 	}
 
 	private void notifyStateChange() {
