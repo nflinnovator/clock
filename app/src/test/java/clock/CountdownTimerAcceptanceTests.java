@@ -3,8 +3,6 @@
  */
 package clock;
 
-import static clock.ClockApplication.TIMER_INITIAL_VALUE;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,14 +18,15 @@ public class CountdownTimerAcceptanceTests {
 	public static final String STATUS_OFF = "OFF";
 	public static final String STATUS_ON = "ON";
 	public static final String STATUS_PAUSE = "PAUSED";
-	public static final String STATUS_STOPPED = "STOPPED";
+	public static final String STATUS_STOPPED = "STOPPED"; 
 	public static final String OFF_BUTTON_TEXT = "Start";
 	public static final String ON_BUTTON_TEXT = "Pause";
 	public static final String PAUSED_BUTTON_TEXT = "Resume";
 	public static final String STOPPED_BUTTON_TEXT = "Restart";
 	public static final Integer RUN_COUNT = 0;
-	public static final Integer TIMER_STOP_VALUE = 0;
-	
+	public static final Integer COUNTDOWN_TIMER_INITIAL_VALUE = 5; 
+	public static final Integer COUNTDOWN_TIMER_STOP_VALUE = 0;
+	 
 	private final ApplicationRunner application = new ApplicationRunner();
 
 	@BeforeEach
@@ -37,16 +36,16 @@ public class CountdownTimerAcceptanceTests {
 
 	@Test
 	@Order(1)
-	void onceOpenedDisplaysAFrozenCountdownTimerWithInitialValue() {
+	void onceOpenedDisplaysAFrozenCountdownTimerWithInitialValues() {
 		application.launches();
-		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
-	}
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
+	} 
 	
 	@Test
 	@Order(2)
 	void startCountdownTimerAndItUpdatesCountdownTimerStatus() {
 		application.launches();
-		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_INITIAL_VALUE,RUN_COUNT,STATUS_OFF);
 		application.showsStartButtonWithText(OFF_BUTTON_TEXT);
 		application.startsCountdownTimer();
 		application.showsCountdownTimerWithStatus(STATUS_ON);
@@ -59,8 +58,8 @@ public class CountdownTimerAcceptanceTests {
 	void startCountdownTimerForTheFirstTimeAndItStartsDecrementingEverySecond(){
 		application.launches();
 		application.startsCountdownTimer();
-		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(COUNTDOWN_TIMER_INITIAL_VALUE);
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
 		application.showsStartButtonWithText(STOPPED_BUTTON_TEXT);
 	}
 	
@@ -70,11 +69,11 @@ public class CountdownTimerAcceptanceTests {
 		application.launches();
 		application.startsCountdownTimer();
 		application.showsCountdownTimerWithRunCount(RUN_COUNT + 1);
-		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE);
-		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(COUNTDOWN_TIMER_INITIAL_VALUE);
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
 		application.pause();
 		application.startsCountdownTimer();
-		application.showsCountdownTimerWithValues(TIMER_INITIAL_VALUE,RUN_COUNT+2,STATUS_ON);
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_INITIAL_VALUE,RUN_COUNT+2,STATUS_ON);
 	}
 	
 	@Test
@@ -98,7 +97,7 @@ public class CountdownTimerAcceptanceTests {
 		application.resumesCountdownTimer();
 		application.showsCountdownTimerWithStatus(STATUS_ON);
 		application.showsStartButtonWithText(ON_BUTTON_TEXT);
-		application.hasShownCountdownTimerDecrementingEverySecondFor(TIMER_INITIAL_VALUE-1);
+		application.hasShownCountdownTimerDecrementingEverySecondFor(COUNTDOWN_TIMER_INITIAL_VALUE-1);
 	}
 	
 	@Test
@@ -107,7 +106,7 @@ public class CountdownTimerAcceptanceTests {
 		application.launches();
 		application.startsCountdownTimer();
 		application.stopsCountdownTimer();
-		application.showsCountdownTimerWithValues(TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
+		application.showsCountdownTimerWithValues(COUNTDOWN_TIMER_STOP_VALUE,RUN_COUNT+1,STATUS_STOPPED);
 		application.showsStartButtonWithText(STOPPED_BUTTON_TEXT);
 	}
 	

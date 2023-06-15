@@ -1,5 +1,10 @@
 package clock.unit;
 
+import static clock.adapters.TimerEvent.PAUSE;
+import static clock.adapters.TimerEvent.RESUME;
+import static clock.adapters.TimerEvent.START;
+import static clock.adapters.TimerEvent.STOP;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.jupiter.api.DisplayName;
@@ -8,16 +13,17 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import clock.adapters.TimerEvent;
 import clock.adapters.TimerEventAnnouncer;
-import clock.adapters.TimerEventAnnouncer.TimerEvent;
-import clock.domain.UserEventListener;
+import clock.domain.CountdownTimer;
 
 @DisplayName("UserEventHandler Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TimerEventAnnouncerTest {
 	private final Mockery context = new Mockery();
-	private final UserEventListener listener = context.mock(UserEventListener.class);
+	private final CountdownTimer listener = context.mock(CountdownTimer.class);
 	private final TimerEventAnnouncer announcer = new TimerEventAnnouncer(listener);
+	private final static Integer CURRENT_COUNTDOWN_TIMER_VALUE = 1; 
 
 	@Test
 	@Order(1)
@@ -29,24 +35,24 @@ class TimerEventAnnouncerTest {
 			}
 		});
 
-		final TimerEvent event = TimerEvent.START; 
+		final TimerEvent event = START; 
 		announcer.announce(event);
 
 		context.assertIsSatisfied();
 	}
 	
-	@Test
+	@Test 
 	@Order(2)
-	void notifiesTimerPausedWhenPauseTimerEventReceived() {
+	void notifiesTimerPausedWhenPauseTimerEventReceived() { 
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onPause();
+				oneOf(listener).onPause(with(any(Integer.class)));
 			}
 		});
 
-		final TimerEvent event = TimerEvent.PAUSE; 
-		announcer.announce(event);
+		final TimerEvent event = PAUSE; 
+		announcer.announce(event,CURRENT_COUNTDOWN_TIMER_VALUE);
 
 		context.assertIsSatisfied();
 	}
@@ -57,12 +63,12 @@ class TimerEventAnnouncerTest {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onResume();
+				oneOf(listener).onResume(with(any(Integer.class)));
 			}
 		});
 
-		final TimerEvent event = TimerEvent.RESUME; 
-		announcer.announce(event);
+		final TimerEvent event = RESUME; 
+		announcer.announce(event,CURRENT_COUNTDOWN_TIMER_VALUE);
 
 		context.assertIsSatisfied();
 	}
@@ -77,7 +83,7 @@ class TimerEventAnnouncerTest {
 			}
 		});
 
-		final TimerEvent event = TimerEvent.STOP; 
+		final TimerEvent event = STOP; 
 		announcer.announce(event);
 
 		context.assertIsSatisfied();

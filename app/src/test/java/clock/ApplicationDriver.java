@@ -1,10 +1,10 @@
 package clock;
 
-import static clock.ui.UserInterface.RUN_COUNT_LABEL_ID;
-import static clock.ui.UserInterface.START_BUTTON_ID;
-import static clock.ui.UserInterface.STOP_BUTTON_ID;
-import static clock.ui.UserInterface.STATUS_LABEL_ID;
-import static clock.ui.UserInterface.TIMER_LABEL_ID;
+import static clock.ui.views.CountdownTimerView.RUN_COUNT_LABEL_ID;
+import static clock.ui.views.CountdownTimerView.START_BUTTON_ID;
+import static clock.ui.views.CountdownTimerView.STATUS_LABEL_ID;
+import static clock.ui.views.CountdownTimerView.STOP_BUTTON_ID;
+import static clock.ui.views.CountdownTimerView.TIMER_LABEL_ID;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.GeneralMatchers.typeSafeMatcher;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
@@ -23,7 +23,7 @@ import javafx.stage.Stage;
 
 class ApplicationDriver extends FxRobot implements ApplicationFixture {
 
-	private static final String NO_PARAMETER = null;
+	private static final String COUNTDOWN_TIMER_INITIAL_VALUE = "5";
 
 	private void launch(Class<? extends Application> appClass, String... appArgs) throws Exception {
 		FxToolkit.registerPrimaryStage();
@@ -36,7 +36,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	}
 
 	void startApplication() throws Exception {
-		launch(ClockApplication.class, NO_PARAMETER);
+		launch(Main.class, COUNTDOWN_TIMER_INITIAL_VALUE);
 	}
 
 	void showsCountdownTimerWithValues(Integer value, Integer runCount, String status) {
@@ -68,11 +68,11 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	void pausesCountdownTimer() {
 		startOrPauseOrResumeCountdownTimer();
 	}
-	
+
 	void resumesCountdownTimer() {
 		startOrPauseOrResumeCountdownTimer();
 	}
-	
+
 	void stopsCountdownTimer() {
 		sleep(500);
 		clickOn(node(STOP_BUTTON_ID));
@@ -82,7 +82,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 		sleep(100);
 		verifyThat(node(START_BUTTON_ID), hasText(text));
 	}
-	
+
 	void hasDisabledStopButton() {
 		sleep(500);
 		verifyThat(node(STOP_BUTTON_ID), isDisabled());
@@ -117,8 +117,8 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	@Override
 	public void stop() throws Exception {
 	}
-	
+
 	private Matcher<Button> isDisabled() {
-        return typeSafeMatcher(Button.class,"Button "+"is Disabled", Button::isDisabled);
-    }
+		return typeSafeMatcher(Button.class, "Button " + "is Disabled", Button::isDisabled);
+	}
 }

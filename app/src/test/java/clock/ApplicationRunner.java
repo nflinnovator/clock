@@ -1,7 +1,7 @@
 package clock;
 
-import static clock.ClockApplication.TIMER_INITIAL_VALUE;
-import static clock.CountdownTimerAcceptanceTests.TIMER_STOP_VALUE;
+import static clock.CountdownTimerAcceptanceTests.COUNTDOWN_TIMER_INITIAL_VALUE;
+import static clock.CountdownTimerAcceptanceTests.COUNTDOWN_TIMER_STOP_VALUE;
 
 class ApplicationRunner {
 
@@ -13,22 +13,22 @@ class ApplicationRunner {
 	}
 
 	void launches() {
-		final var applicationTestThread = new Thread("Application Test Thread") {
+		final var applicationTestThread = new Thread("Application Test Thread") { 
 			@Override
-			public void run() {
+			public void run() { 
 				try {
 					driver.startApplication();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-		};
+			} 
+		}; 
 		applicationTestThread.setDaemon(true);
 		applicationTestThread.start();
 	}
 	
 	void pause() {
-		driver.sleep(500);
+		driver.sleep(500); 
 	}
 	
 	void showsCountdownTimerWithValues(Integer currentValue,Integer runCount,String status) {
@@ -69,7 +69,7 @@ class ApplicationRunner {
 	
     void hasShownCountdownTimerDecrementingEverySecondFor(Integer value){
     	driver.sleep(value*1000);
-    	driver.showCountdownTimerWithValue(TIMER_STOP_VALUE);
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_STOP_VALUE);
 	}
     
     void showsStartButtonWithText(String text){
@@ -77,9 +77,9 @@ class ApplicationRunner {
     }
     
     void showsCountdownTimerHasPaused() {
-    	driver.showCountdownTimerWithValue(TIMER_INITIAL_VALUE - 1);
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE - 1);
     	driver.sleep(2000);
-    	driver.showCountdownTimerWithValue(TIMER_INITIAL_VALUE - 1);
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE - 1);
     }
 
 	void close() throws Exception {

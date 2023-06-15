@@ -41,7 +41,7 @@ javafx {
 
 application {
     // Define the main class for the application.
-    mainClass = 'clock.ClockApplication'
+    mainClass = 'clock.Main'
 }
 
 tasks.named('test') {
