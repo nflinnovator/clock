@@ -25,12 +25,6 @@ public class CountdownTimerViewModel implements CountdownTimerListener {
 	public void countdownTimerStateChanged(CountdownTimerState newState) {
 		currentState = newState;
 		updateUserInterface();
-		System.out.println("STATUS " + status);
-		System.out.println("VALUE " + value);
-		System.out.println("RUN COUNT " + runCount);
-		System.out.println("START BUTTON DISPLAY " + startButtonDisplay);
-		System.out.println("STOP BUTTON DISABILITY " + stopButtonDisability);
-
 	}
 
 	private void updateUserInterface() {
