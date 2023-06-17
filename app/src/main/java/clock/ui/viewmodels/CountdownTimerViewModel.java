@@ -1,10 +1,13 @@
 package clock.ui.viewmodels;
 
-import static clock.domain.CountdownTimerStatus.OFF;
-import static clock.domain.CountdownTimerStatus.ON;
+import static clock.domain.CountdownTimerStatus.INITIALIZED;
+import static clock.domain.CountdownTimerStatus.STARTED;
+import static clock.domain.CountdownTimerStatus.RUNNING;
 import static clock.domain.CountdownTimerStatus.PAUSED;
 import static clock.domain.CountdownTimerStatus.STOPPED;
 
+import clock.adapters.CountdownTimerEvent;
+import clock.adapters.CountdownTimerEventAnnouncer;
 import clock.domain.CountdownTimerState;
 import clock.domain.CountdownTimerStateChangeListener;
 import javafx.beans.property.BooleanProperty;
@@ -15,8 +18,9 @@ import javafx.beans.value.ChangeListener;
 
 public class CountdownTimerViewModel implements CountdownTimerStateChangeListener {
 
-	private static final String[] COUNTDOWN_TIMER_STATUSES = { "OFF", "ON", "PAUSED", "STOPPED" };
-	public static final String[] START_BUTTON_DISPLAYS = { "Start", "Pause", "Resume", "Restart" };
+	private static final String[] COUNTDOWN_TIMER_STATUSES = { "INITIALIZED", "STARTED", "RUNNING", "PAUSED",
+			"STOPPED" };
+	public static final String[] START_BUTTON_DISPLAYS = { "Start", "Pause", "Pause", "Resume", "Restart" };
 
 	private CountdownTimerState currentState;
 
@@ -24,12 +28,15 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 	private StringProperty valueProperty = new SimpleStringProperty();
 	private StringProperty runCountProperty = new SimpleStringProperty();
 	private StringProperty startButtonDisplayProperty = new SimpleStringProperty();
-	private BooleanProperty stopButtonDisabilityProperty = new SimpleBooleanProperty(Boolean.TRUE);
+	private BooleanProperty isStopButtonDisableBooleanProperty = new SimpleBooleanProperty(Boolean.TRUE);
+
+	private CountdownTimerEventAnnouncer announcer;
 
 	@Override
 	public void countdownTimerStateChanged(CountdownTimerState newState) {
 		currentState = newState;
 		updateUserInterface();
+		announce();
 	}
 
 	public void addValueChangeListener(ChangeListener<String> valueChangeListener) {
@@ -48,8 +55,12 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 		startButtonDisplayProperty.addListener(valueChangeListener);
 	}
 
-	public void addStopButtonDisabilityChangeListener(ChangeListener<Boolean> valueChangeListener) {
-		stopButtonDisabilityProperty.addListener(valueChangeListener);
+	public void addIsStopButtonDisableChangeListener(ChangeListener<Boolean> valueChangeListener) {
+		isStopButtonDisableBooleanProperty.addListener(valueChangeListener);
+	}
+
+	public void addCountdownTimerEventAnnouncer(CountdownTimerEventAnnouncer announcer) {
+		this.announcer = announcer;
 	}
 
 	private void updateUserInterface() {
@@ -60,15 +71,27 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 		updateStopButtonDisability();
 	}
 
+	private void announce() {
+		if (STARTED.equals(currentState.status())) {
+			announcer.announce(CountdownTimerEvent.RUN);
+		} else if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
+			announcer.announce(CountdownTimerEvent.STOP);
+		}
+	}
+
 	private void updateStatus() {
 		final String status;
 		switch (currentState.status()) {
-		case OFF: {
-			status = COUNTDOWN_TIMER_STATUSES[OFF.ordinal()];
+		case INITIALIZED: {
+			status = COUNTDOWN_TIMER_STATUSES[INITIALIZED.ordinal()];
 			break;
 		}
-		case ON: {
-			status = COUNTDOWN_TIMER_STATUSES[ON.ordinal()];
+		case STARTED: {
+			status = COUNTDOWN_TIMER_STATUSES[STARTED.ordinal()];
+			break;
+		}
+		case RUNNING: {
+			status = COUNTDOWN_TIMER_STATUSES[RUNNING.ordinal()];
 			break;
 		}
 		case PAUSED: {
@@ -96,12 +119,16 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 	private void updateStartButtonDisplay() {
 		final String startButtonDisplay;
 		switch (currentState.status()) {
-		case OFF: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[OFF.ordinal()];
+		case INITIALIZED: {
+			startButtonDisplay = START_BUTTON_DISPLAYS[INITIALIZED.ordinal()];
 			break;
 		}
-		case ON: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[ON.ordinal()];
+		case STARTED: {
+			startButtonDisplay = START_BUTTON_DISPLAYS[STARTED.ordinal()];
+			break;
+		}
+		case RUNNING: {
+			startButtonDisplay = START_BUTTON_DISPLAYS[STARTED.ordinal()];
 			break;
 		}
 		case PAUSED: {
@@ -119,11 +146,32 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 	}
 
 	private void updateStopButtonDisability() {
-		if (ON.equals(currentState.status()) || PAUSED.equals(currentState.status())) {
-			stopButtonDisabilityProperty.setValue(Boolean.FALSE);
-		} else {
-			stopButtonDisabilityProperty.setValue(Boolean.TRUE);
+		final Boolean isStopButtonDisable;
+		switch (currentState.status()) {
+		case INITIALIZED: {
+			isStopButtonDisable = Boolean.TRUE;
+			break;
 		}
+		case STARTED: {
+			isStopButtonDisable = Boolean.FALSE;
+			break;
+		}
+		case RUNNING: {
+			isStopButtonDisable = Boolean.FALSE;
+			break;
+		}
+		case PAUSED: {
+			isStopButtonDisable = Boolean.FALSE;
+			break;
+		}
+		case STOPPED: {
+			isStopButtonDisable = Boolean.TRUE;
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + currentState.status());
+		}
+		isStopButtonDisableBooleanProperty.setValue(isStopButtonDisable);
 	}
 
 	public String status() {
@@ -143,7 +191,7 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 	}
 
 	public Boolean stopButtonDisability() {
-		return stopButtonDisabilityProperty.getValue();
+		return isStopButtonDisableBooleanProperty.getValue();
 	}
 
 }

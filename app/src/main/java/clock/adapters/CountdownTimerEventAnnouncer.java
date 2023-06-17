@@ -15,6 +15,10 @@ public class CountdownTimerEventAnnouncer {
 			listener.start();
 			break;
 		}
+		case RUN: {
+			listener.run();
+			break;
+		}
 		case PAUSE: {
 			listener.pause();
 			break;

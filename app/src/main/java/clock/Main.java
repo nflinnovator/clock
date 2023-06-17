@@ -50,6 +50,7 @@ public class Main extends Application {
 
 		@Override
 		public void handle(WindowEvent event) {
+			countdownTimerViewModel.addCountdownTimerEventAnnouncer(announcer);
 			countdownTimerView.addCountdownTimerEventAnnouncer(announcer);
 			countdownTimerView.buildView();
 		}

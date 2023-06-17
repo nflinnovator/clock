@@ -41,7 +41,7 @@ public class CountdownTimerView extends VBox {
 		viewModel.addRunCountChangeListener((observable, oldValue, newValue) -> runCountLabel.setText(newValue));
 		viewModel.addStartButtonDisplayChangeListener(
 				(observable, oldValue, newValue) -> startTimerButton.setText(newValue));
-		viewModel.addStopButtonDisabilityChangeListener(
+		viewModel.addIsStopButtonDisableChangeListener(
 				(observable, oldValue, newValue) -> stopTimerButton.setDisable(newValue));
 	}
 

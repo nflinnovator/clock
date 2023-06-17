@@ -1,5 +1,5 @@
 package clock.adapters;
 
 public enum CountdownTimerEvent {
-	INITIALIZE,START,PAUSE,RESUME,STOP;
+	INITIALIZE,START,RUN,PAUSE,RESUME,STOP;
 }
