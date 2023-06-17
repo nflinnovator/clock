@@ -1,26 +1,20 @@
 package clock.ui.controllers;
 
-import static clock.adapters.TimerEvent.PAUSE;
-import static clock.adapters.TimerEvent.RESUME;
-import static clock.adapters.TimerEvent.START;
-import static clock.adapters.TimerEvent.STOP;
+import static clock.adapters.CountdownTimerEvent.PAUSE;
+import static clock.adapters.CountdownTimerEvent.RESUME;
+import static clock.adapters.CountdownTimerEvent.START;
+import static clock.adapters.CountdownTimerEvent.STOP;
 
-import clock.adapters.TimerEventAnnouncer;
+import clock.adapters.CountdownTimerEventAnnouncer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 
 public class CountdownTimerController implements EventHandler<ActionEvent> {
 
-	private final TimerEventAnnouncer announcer;
-	private Integer currentValue;
+	private final CountdownTimerEventAnnouncer announcer;
 	
-	public CountdownTimerController(TimerEventAnnouncer announcer) {
-		this.announcer = announcer;
-	}
-
-	public CountdownTimerController(Integer currentValue, TimerEventAnnouncer announcer) {
-		this.currentValue = currentValue;
+	public CountdownTimerController(CountdownTimerEventAnnouncer announcer) {
 		this.announcer = announcer;
 	}
 
@@ -33,11 +27,11 @@ public class CountdownTimerController implements EventHandler<ActionEvent> {
 			break;
 		}
 		case "Pause": {
-			announcer.announce(PAUSE, currentValue);
+			announcer.announce(PAUSE);
 			break;
 		}
 		case "Resume": {
-			announcer.announce(RESUME, currentValue);
+			announcer.announce(RESUME);
 			break;
 		}
 		case "Restart": {

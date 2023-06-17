@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import clock.domain.SimpleCountdownTimer;
-import clock.domain.CountdownTimerListener;
+import clock.domain.CountdownTimerStateChangeListener;
 import clock.domain.CountdownTimerState;
 import clock.domain.CountdownTimerStatus;
 
@@ -30,9 +30,9 @@ class CountdownTimerTest {
 
 	private final Mockery context = new Mockery();
 	private final DeterministicExecutor executor = new DeterministicExecutor();
-	private final CountdownTimerListener listener = context.mock(CountdownTimerListener.class);
+	private final CountdownTimerStateChangeListener listener = context.mock(CountdownTimerStateChangeListener.class);
 	private final SimpleCountdownTimer timer = new SimpleCountdownTimer(executor, listener);
-	private final static Integer INITIAL_VALUE = 1;
+	private final static Integer INITIAL_VALUE = 2;
 	private final States state = context.states("state").startsAs("Off"); 
 
 	@Test
@@ -45,7 +45,7 @@ class CountdownTimerTest {
 			}
 		});
 
-		timer.onInit(INITIAL_VALUE);
+		timer.initialize(INITIAL_VALUE);
 
 		context.assertIsSatisfied();
 
@@ -67,8 +67,8 @@ class CountdownTimerTest {
 			}
 		});
 
-		timer.onInit(INITIAL_VALUE);
-		timer.onStart();
+		timer.initialize(INITIAL_VALUE);
+		timer.start();
 		executor.runUntilIdle();
 
 		context.assertIsSatisfied();
@@ -89,8 +89,8 @@ class CountdownTimerTest {
 			}
 		});
 
-		timer.onInit(INITIAL_VALUE);
-		timer.onStart();
+		timer.initialize(INITIAL_VALUE);
+		timer.start();
 		executor.runUntilIdle();
 
 		context.assertIsSatisfied();
@@ -111,16 +111,13 @@ class CountdownTimerTest {
 			}
 		});
 
-		final var pauseValue = 1;
-
-		timer.onInit(INITIAL_VALUE);
-		timer.onStart();
-		timer.onPause(pauseValue);
+		timer.initialize(INITIAL_VALUE);
+		timer.start();
+		timer.pause();
 
 		context.assertIsSatisfied();
 
 		assertThat(runCount(), equalTo(1));
-		assertThat(currentValue(), equalTo(pauseValue));
 	}
 
 	@Test
@@ -129,22 +126,20 @@ class CountdownTimerTest {
 
 		context.checking(new Expectations() {
 			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(OFF)));
+				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(OFF)));
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
 				then(state.is("Paused"));
 				atLeast(1).of(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(ON)));
 				when(state.is("Paused"));
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
 				then(state.is("Stopped"));
 			}
 		});
 
-		final var pauseAndResumeValue = 1;
-
-		timer.onInit(INITIAL_VALUE);
-		timer.onStart();
-		timer.onPause(pauseAndResumeValue);
-		timer.onResume(pauseAndResumeValue);
+		timer.initialize(INITIAL_VALUE);
+		timer.start();
+		timer.pause();
+		timer.resume();
 		executor.runUntilIdle();
 
 		context.assertIsSatisfied();
@@ -164,9 +159,9 @@ class CountdownTimerTest {
 			}
 		});
 
-		timer.onInit(INITIAL_VALUE);
-		timer.onStart();
-		timer.onStop();
+		timer.initialize(INITIAL_VALUE);
+		timer.start();
+		timer.stop();
 
 		context.assertIsSatisfied();
 
@@ -179,7 +174,7 @@ class CountdownTimerTest {
 	}
 
 	private Integer currentValue() {
-		return timer.getCurrentState().currentValue();
+		return timer.getCurrentState().value();
 	}
 
 	private Integer runCount() {

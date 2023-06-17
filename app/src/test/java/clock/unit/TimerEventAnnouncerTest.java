@@ -1,9 +1,10 @@
 package clock.unit;
 
-import static clock.adapters.TimerEvent.PAUSE;
-import static clock.adapters.TimerEvent.RESUME;
-import static clock.adapters.TimerEvent.START;
-import static clock.adapters.TimerEvent.STOP;
+import static clock.adapters.CountdownTimerEvent.INITIALIZE;
+import static clock.adapters.CountdownTimerEvent.PAUSE;
+import static clock.adapters.CountdownTimerEvent.RESUME;
+import static clock.adapters.CountdownTimerEvent.START;
+import static clock.adapters.CountdownTimerEvent.STOP;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -13,8 +14,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import clock.adapters.TimerEvent;
-import clock.adapters.TimerEventAnnouncer;
+import clock.adapters.CountdownTimerEvent;
+import clock.adapters.CountdownTimerEventAnnouncer;
 import clock.domain.CountdownTimer;
 
 @DisplayName("UserEventHandler Unit Test Case")
@@ -22,68 +23,84 @@ import clock.domain.CountdownTimer;
 class TimerEventAnnouncerTest {
 	private final Mockery context = new Mockery();
 	private final CountdownTimer listener = context.mock(CountdownTimer.class);
-	private final TimerEventAnnouncer announcer = new TimerEventAnnouncer(listener);
+	private final CountdownTimerEventAnnouncer announcer = new CountdownTimerEventAnnouncer(listener);
 	private final static Integer CURRENT_COUNTDOWN_TIMER_VALUE = 1; 
-
+	
 	@Test
 	@Order(1)
+	void notifiesCountdownTimerInitializationWhenInitializeTimerEventReceived() {
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).initialize(CURRENT_COUNTDOWN_TIMER_VALUE);
+			}
+		});
+
+		final CountdownTimerEvent event = INITIALIZE; 
+		announcer.announce(event,CURRENT_COUNTDOWN_TIMER_VALUE);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	@Order(2)
 	void notifiesTimerStartedWhenStartTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onStart();
+				oneOf(listener).start();
 			}
 		});
 
-		final TimerEvent event = START; 
+		final CountdownTimerEvent event = START; 
 		announcer.announce(event);
 
 		context.assertIsSatisfied();
 	}
 	
 	@Test 
-	@Order(2)
+	@Order(3)
 	void notifiesTimerPausedWhenPauseTimerEventReceived() { 
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onPause(with(any(Integer.class)));
+				oneOf(listener).pause();
 			}
 		});
 
-		final TimerEvent event = PAUSE; 
-		announcer.announce(event,CURRENT_COUNTDOWN_TIMER_VALUE);
-
-		context.assertIsSatisfied();
-	}
-	
-	@Test
-	@Order(3)
-	void notifiesTimerResumedWhenResumeTimerEventReceived() {
-
-		context.checking(new Expectations() {
-			{
-				oneOf(listener).onResume(with(any(Integer.class)));
-			}
-		});
-
-		final TimerEvent event = RESUME; 
-		announcer.announce(event,CURRENT_COUNTDOWN_TIMER_VALUE);
+		final CountdownTimerEvent event = PAUSE; 
+		announcer.announce(event);
 
 		context.assertIsSatisfied();
 	}
 	
 	@Test
 	@Order(4)
+	void notifiesTimerResumedWhenResumeTimerEventReceived() {
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).resume();
+			}
+		});
+
+		final CountdownTimerEvent event = RESUME; 
+		announcer.announce(event);
+
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	@Order(5)
 	void notifiesTimerStoppedWhenStopTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).onStop();
+				oneOf(listener).stop();
 			}
 		});
 
-		final TimerEvent event = STOP; 
+		final CountdownTimerEvent event = STOP; 
 		announcer.announce(event);
 
 		context.assertIsSatisfied();

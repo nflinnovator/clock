@@ -1,7 +1,10 @@
 package clock;
 
+import static clock.adapters.CountdownTimerEvent.INITIALIZE;
+
 import java.util.concurrent.Executors;
 
+import clock.adapters.CountdownTimerEventAnnouncer;
 import clock.adapters.CountdownTimerStateChangeNotifier;
 import clock.domain.CountdownTimer;
 import clock.domain.SimpleCountdownTimer;
@@ -23,6 +26,7 @@ public class Main extends Application {
 	private final CountdownTimerView countdownTimerView = new CountdownTimerView(countdownTimerViewModel);
 	private final CountdownTimer countdownTimer = new SimpleCountdownTimer(Executors.newSingleThreadExecutor(),
 			new CountdownTimerStateChangeNotifier(countdownTimerViewModel));
+	private final CountdownTimerEventAnnouncer announcer = new CountdownTimerEventAnnouncer(countdownTimer);
 
 	public static void main(String... args) {
 		initialValue = Integer.parseInt(args[0]);
@@ -31,7 +35,7 @@ public class Main extends Application {
 
 	@Override
 	public void init() throws Exception {
-		countdownTimer.onInit(initialValue);
+		announcer.announce(INITIALIZE, initialValue);
 	}
 
 	@Override
@@ -46,7 +50,7 @@ public class Main extends Application {
 
 		@Override
 		public void handle(WindowEvent event) {
-			countdownTimerView.addCountdownTimerEventListener(countdownTimer);
+			countdownTimerView.addCountdownTimerEventAnnouncer(announcer);
 			countdownTimerView.buildView();
 		}
 	}

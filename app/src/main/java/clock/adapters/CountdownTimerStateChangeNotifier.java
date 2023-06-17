@@ -1,14 +1,14 @@
 package clock.adapters;
 
-import clock.domain.CountdownTimerListener;
+import clock.domain.CountdownTimerStateChangeListener;
 import clock.domain.CountdownTimerState;
 import javafx.application.Platform;
 
-public class CountdownTimerStateChangeNotifier implements CountdownTimerListener{
+public class CountdownTimerStateChangeNotifier implements CountdownTimerStateChangeListener{
 	
-	private final CountdownTimerListener viewModel;
+	private final CountdownTimerStateChangeListener viewModel;
 	
-	public CountdownTimerStateChangeNotifier(CountdownTimerListener viewModel) {
+	public CountdownTimerStateChangeNotifier(CountdownTimerStateChangeListener viewModel) {
 		this.viewModel = viewModel;
 	}
 

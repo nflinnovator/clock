@@ -7,19 +7,19 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	private static final Integer STOP_VALUE = 0;
 
 	private final Executor executor;
-	private final CountdownTimerListener listener;
+	private final CountdownTimerStateChangeListener listener;
 
-	private Integer initialValue;
+	private Integer initialValue,value;
 	private Integer runCount;
 	private CountdownTimerState state;
 
-	public SimpleCountdownTimer(Executor executor, CountdownTimerListener listener) {
+	public SimpleCountdownTimer(Executor executor, CountdownTimerStateChangeListener listener) {
 		this.executor = executor;
 		this.listener = listener;
 	}
 
 	@Override
-	public void onInit(Integer initialValue) {
+	public void initialize(Integer initialValue) {
 		this.initialValue = initialValue;
 		runCount = 0;
 		state = CountdownTimerState.init(initialValue);
@@ -27,27 +27,27 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	}
 
 	@Override
-	public void onStart() {
+	public void start() {
 		runCount++;
-		state = state.on(initialValue, runCount);
-		executor.execute(new CountdownRunner(initialValue));
+		value = runCount > 1 ? initialValue +1 : initialValue;
+		state = state.on(value, runCount);
+		executor.execute(new CountdownTimerRunner());
 	}
 
 	@Override
-	public void onPause(Integer pauseValue) {
-		state = state.paused(pauseValue);
+	public void pause() {
+		state = state.paused(value);
 		notifyStateChange();
 	}
 
 	@Override
-	public void onResume(Integer resumeValue) {
-		state = state.on(resumeValue);
-		notifyStateChange();
-		executor.execute(new CountdownRunner(resumeValue + 1));
+	public void resume() {
+		state = state.on(value);
+		executor.execute(new CountdownTimerRunner());
 	}
 
 	@Override
-	public void onStop() {
+	public void stop() {
 		state = state.stopped();
 		notifyStateChange();
 	}
@@ -60,21 +60,15 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		listener.countdownTimerStateChanged(state);
 	}
 
-	private class CountdownRunner implements Runnable {
-
-		private Integer currentValue;
-
-		CountdownRunner(Integer currentValue) {
-			this.currentValue = currentValue;
-		}
+	private class CountdownTimerRunner implements Runnable {
 
 		@Override
 		public void run() {
 			while (canRun()) {
-				countdown();
-				state = state.on(currentValue);
-				notifyStateChange();
 				pauseForOneSecond();
+				countdown();
+				state = state.on(value);
+				notifyStateChange();
 			}
 			if (hasExpired()) {
 				state = state.stopped();
@@ -87,7 +81,7 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		}
 
 		private Boolean hasNotTimedout() {
-			return currentValue > STOP_VALUE;
+			return value > STOP_VALUE;
 		}
 
 		private Boolean isRunnable() {
@@ -96,11 +90,11 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		}
 
 		private Boolean hasExpired() {
-			return currentValue == STOP_VALUE;
+			return value == STOP_VALUE;
 		}
 
 		private void countdown() {
-			--currentValue;
+			--value;
 		}
 
 		private void pauseForOneSecond() {
