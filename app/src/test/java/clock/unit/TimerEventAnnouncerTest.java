@@ -5,6 +5,8 @@ import static clock.adapters.CountdownTimerEvent.PAUSE;
 import static clock.adapters.CountdownTimerEvent.RESUME;
 import static clock.adapters.CountdownTimerEvent.START;
 import static clock.adapters.CountdownTimerEvent.STOP;
+import static clock.adapters.CountdownTimerEvent.RUN;
+import static clock.adapters.CountdownTimerEvent.RESTART;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -28,7 +30,7 @@ class TimerEventAnnouncerTest {
 	
 	@Test
 	@Order(1)
-	void notifiesCountdownTimerInitializationWhenInitializeTimerEventReceived() {
+	void notifiesCountdownTimerInitializeWhenInitializeTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
@@ -44,7 +46,7 @@ class TimerEventAnnouncerTest {
 
 	@Test
 	@Order(2)
-	void notifiesTimerStartedWhenStartTimerEventReceived() {
+	void notifiesCountdownTimerStartWhenStartCountdownTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
@@ -60,7 +62,23 @@ class TimerEventAnnouncerTest {
 	
 	@Test 
 	@Order(3)
-	void notifiesTimerPausedWhenPauseTimerEventReceived() { 
+	void notifiesCountdownTimerRunWhenRunCountdownTimerEventReceived() { 
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).run();
+			}
+		});
+
+		final CountdownTimerEvent event = RUN; 
+		announcer.announce(event);
+
+		context.assertIsSatisfied();
+	}
+	
+	@Test 
+	@Order(4)
+	void notifiesCountdownTimerPauseWhenPauseCountdownTimerEventReceived() { 
 
 		context.checking(new Expectations() {
 			{
@@ -75,8 +93,8 @@ class TimerEventAnnouncerTest {
 	}
 	
 	@Test
-	@Order(4)
-	void notifiesTimerResumedWhenResumeTimerEventReceived() {
+	@Order(5)
+	void notifiesCountdownTimerResumeWhenResumeCountdownTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
@@ -91,8 +109,8 @@ class TimerEventAnnouncerTest {
 	}
 	
 	@Test
-	@Order(5)
-	void notifiesTimerStoppedWhenStopTimerEventReceived() {
+	@Order(6)
+	void notifiesCountdownTimerStopWhenStopCountdownTimerEventReceived() {
 
 		context.checking(new Expectations() {
 			{
@@ -101,6 +119,22 @@ class TimerEventAnnouncerTest {
 		});
 
 		final CountdownTimerEvent event = STOP; 
+		announcer.announce(event);
+
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	@Order(7)
+	void notifiesCountdownTimerRestartWhenRestartCountdownTimerEventReceived() {
+
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).restart();
+			}
+		});
+
+		final CountdownTimerEvent event = RESTART; 
 		announcer.announce(event);
 
 		context.assertIsSatisfied();

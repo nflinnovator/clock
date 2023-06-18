@@ -31,6 +31,10 @@ public class CountdownTimerEventAnnouncer {
 			listener.stop();
 			break;
 		}
+		case RESTART: {
+			listener.restart();
+			break;
+		}
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + event);
 		}

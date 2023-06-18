@@ -7,4 +7,5 @@ public interface CountdownTimer{
   void pause();
   void resume();
   void stop();
+  void restart();
 }

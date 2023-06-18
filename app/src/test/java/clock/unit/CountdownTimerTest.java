@@ -4,7 +4,9 @@ import static clock.domain.CountdownTimerStatus.INITIALIZED;
 import static clock.domain.CountdownTimerStatus.STARTED;
 import static clock.domain.CountdownTimerStatus.RUNNING;
 import static clock.domain.CountdownTimerStatus.PAUSED;
+import static clock.domain.CountdownTimerStatus.RESUMED;
 import static clock.domain.CountdownTimerStatus.STOPPED;
+import static clock.domain.CountdownTimerStatus.RESTARTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -33,7 +35,7 @@ class CountdownTimerTest {
 	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final CountdownTimerStateChangeListener listener = context.mock(CountdownTimerStateChangeListener.class);
 	private final SimpleCountdownTimer countdownTimer = new SimpleCountdownTimer(executor, listener);
-	private final static Integer INITIAL_VALUE = 2;
+	private final static Integer INITIAL_VALUE = 1;
 	private final static Integer STOP_VALUE = 0;
 	private final States state = context.states("state").startsAs("Initialized");
 
@@ -58,11 +60,9 @@ class CountdownTimerTest {
 	@Test
 	@Order(2)
 	void notifiesStartgWhenCountdownTimerStarts() {
-
+		expectCountdownTimerToBeInitialized();
 		context.checking(new Expectations() {
 			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				then(state.is("Initialized"));
 				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
 				when(state.is("Initialized"));
 			}
@@ -77,15 +77,21 @@ class CountdownTimerTest {
 		assertThat(runCount(), equalTo(0));
 	}
 
-	@Test
-	@Order(3)
-	void notifiesRunningWhenCountdownTimerRuns() {
-
+	private void expectCountdownTimerToBeInitialized() {
 		context.checking(new Expectations() {
 			{
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				then(state.is("Started"));
+				then(state.is("Initialized"));
+			}
+		});
+	}
+
+	@Test
+	@Order(3)
+	void notifiesRunningWhenCountdownTimerRuns() {
+		expectCountdownTimerToBeStarted();
+		context.checking(new Expectations() {
+			{
 				exactly(INITIAL_VALUE + 1).of(listener)
 						.countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
 				when(state.is("Started"));
@@ -103,16 +109,22 @@ class CountdownTimerTest {
 		assertThat(runCount(), equalTo(1));
 	}
 
-	@Test
-	@Order(4)
-	void notifiesPauseWhenCountdownTimerPauses() {
-
+	private void expectCountdownTimerToBeStarted() {
 		context.checking(new Expectations() {
 			{
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				then(state.is("Running"));
+				then(state.is("Started"));
+			}
+		});
+	}
+
+	@Test
+	@Order(4)
+	void notifiesPauseWhenCountdownTimerPauses() {
+		expectCountdownTimerToBeRunning();
+		context.checking(new Expectations() {
+			{
 				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
 				when(state.is("Running"));
 			}
@@ -129,38 +141,56 @@ class CountdownTimerTest {
 		assertThat(runCount(), equalTo(1));
 	}
 
-	@Test
-	@Order(5)
-	void notifiesResumeWhenCountdownTimerResumes() {
-
-		context.checking(new Expectations() {
-			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
-				then(state.is("Paused"));
-				atLeast(1).of(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				when(state.is("Paused"));
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.pause();
-		countdownTimer.resume();
-		executor.runUntilIdle();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	@Order(6)
-	void notifiesStopWhenCountdownTimerStops() {
-
+	private void expectCountdownTimerToBeRunning() {
 		context.checking(new Expectations() {
 			{
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
 				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
 				then(state.is("Running"));
+			}
+		});
+	}
+
+	@Test
+	@Order(5)
+	void notifiesResumeWhenCountdownTimerResumes() {
+		expectCountdownTimerToBePaused();
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RESUMED)));
+				when(state.is("Paused"));
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.start();
+		countdownTimer.run();
+		executor.runUntilIdle();
+		countdownTimer.pause();
+		countdownTimer.resume();
+
+		context.assertIsSatisfied();
+	}
+
+	private void expectCountdownTimerToBePaused() {
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
+				then(state.is("Paused"));
+			}
+		});
+	}
+
+	@Test
+	@Order(6)
+	void notifiesStopWhenCountdownTimerStops() {
+		expectCountdownTimerToRunUntilItTimesOut();
+		context.checking(new Expectations() {
+			{
 				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
 				when(state.is("Running"));
 			}
@@ -176,6 +206,53 @@ class CountdownTimerTest {
 
 		assertThat(runCount(), equalTo(1));
 		assertThat(currentValue(), equalTo(0));
+	}
+
+	private void expectCountdownTimerToRunUntilItTimesOut() {
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
+				then(state.is("Running"));
+			}
+		});
+	}
+
+	@Test
+	@Order(7)
+	void notifiesRestartWhenCountdownTimerRestarts() {
+		expectCountdownTimerToRunUntilItStops();
+		context.checking(new Expectations() {
+			{
+				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RESTARTED)));
+				when(state.is("Stopped"));
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.start();
+		countdownTimer.run();
+		executor.runUntilIdle();
+		countdownTimer.stop();
+		countdownTimer.restart();
+
+		context.assertIsSatisfied();
+
+		assertThat(runCount(), equalTo(1));
+		assertThat(currentValue(), equalTo(INITIAL_VALUE));
+	}
+
+	private void expectCountdownTimerToRunUntilItStops() {
+		context.checking(new Expectations() {
+			{
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
+				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
+				then(state.is("Stopped"));
+			}
+		});
 	}
 
 	private Integer currentValue() {

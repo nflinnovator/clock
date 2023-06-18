@@ -4,7 +4,9 @@ import static clock.domain.CountdownTimerStatus.INITIALIZED;
 import static clock.domain.CountdownTimerStatus.STARTED;
 import static clock.domain.CountdownTimerStatus.RUNNING;
 import static clock.domain.CountdownTimerStatus.PAUSED;
+import static clock.domain.CountdownTimerStatus.RESUMED;
 import static clock.domain.CountdownTimerStatus.STOPPED;
+import static clock.domain.CountdownTimerStatus.RESTARTED;
 
 import clock.adapters.CountdownTimerEvent;
 import clock.adapters.CountdownTimerEventAnnouncer;
@@ -18,9 +20,9 @@ import javafx.beans.value.ChangeListener;
 
 public class CountdownTimerViewModel implements CountdownTimerStateChangeListener {
 
-	private static final String[] COUNTDOWN_TIMER_STATUSES = { "INITIALIZED", "STARTED", "RUNNING", "PAUSED",
-			"STOPPED" };
-	public static final String[] START_BUTTON_DISPLAYS = { "Start", "Pause", "Pause", "Resume", "Restart" };
+	private static final String[] COUNTDOWN_TIMER_STATUSES = { "OFF", "STARTED", "RUNNING", "PAUSED", "RESUMED",
+			"STOPPED", "RESTARTED" };
+	public static final String[] START_BUTTON_DISPLAYS = { "Start", "Pause", "Resume", "Restart" };
 
 	private CountdownTimerState currentState;
 
@@ -68,11 +70,12 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 		updateValue();
 		updateRunCount();
 		updateStartButtonDisplay();
-		updateStopButtonDisability();
+		updateIsStopButtonDisable();
 	}
 
 	private void announce() {
-		if (STARTED.equals(currentState.status())) {
+		if (STARTED.equals(currentState.status()) || RESTARTED.equals(currentState.status())
+				|| RESUMED.equals(currentState.status())) {
 			announcer.announce(CountdownTimerEvent.RUN);
 		} else if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
 			announcer.announce(CountdownTimerEvent.STOP);
@@ -98,8 +101,16 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 			status = COUNTDOWN_TIMER_STATUSES[PAUSED.ordinal()];
 			break;
 		}
+		case RESUMED: {
+			status = COUNTDOWN_TIMER_STATUSES[RESUMED.ordinal()];
+			break;
+		}
 		case STOPPED: {
 			status = COUNTDOWN_TIMER_STATUSES[STOPPED.ordinal()];
+			break;
+		}
+		case RESTARTED: {
+			status = COUNTDOWN_TIMER_STATUSES[RESTARTED.ordinal()];
 			break;
 		}
 		default:
@@ -120,23 +131,31 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 		final String startButtonDisplay;
 		switch (currentState.status()) {
 		case INITIALIZED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[INITIALIZED.ordinal()];
+			startButtonDisplay = START_BUTTON_DISPLAYS[0];
 			break;
 		}
 		case STARTED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[STARTED.ordinal()];
+			startButtonDisplay = START_BUTTON_DISPLAYS[1];
 			break;
 		}
 		case RUNNING: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[STARTED.ordinal()];
+			startButtonDisplay = START_BUTTON_DISPLAYS[1];
 			break;
 		}
 		case PAUSED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[PAUSED.ordinal()];
+			startButtonDisplay = START_BUTTON_DISPLAYS[2];
+			break;
+		}
+		case RESUMED: {
+			startButtonDisplay = START_BUTTON_DISPLAYS[1];
 			break;
 		}
 		case STOPPED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[STOPPED.ordinal()];
+			startButtonDisplay = START_BUTTON_DISPLAYS[3];
+			break;
+		}
+		case RESTARTED: {
+			startButtonDisplay = START_BUTTON_DISPLAYS[1];
 			break;
 		}
 		default:
@@ -145,7 +164,7 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 		startButtonDisplayProperty.setValue(startButtonDisplay);
 	}
 
-	private void updateStopButtonDisability() {
+	private void updateIsStopButtonDisable() {
 		final Boolean isStopButtonDisable;
 		switch (currentState.status()) {
 		case INITIALIZED: {
@@ -164,8 +183,16 @@ public class CountdownTimerViewModel implements CountdownTimerStateChangeListene
 			isStopButtonDisable = Boolean.FALSE;
 			break;
 		}
+		case RESUMED: {
+			isStopButtonDisable = Boolean.FALSE;
+			break;
+		}
 		case STOPPED: {
 			isStopButtonDisable = Boolean.TRUE;
+			break;
+		}
+		case RESTARTED: {
+			isStopButtonDisable = Boolean.FALSE;
 			break;
 		}
 		default:
