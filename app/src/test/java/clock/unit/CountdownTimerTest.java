@@ -59,7 +59,7 @@ class CountdownTimerTest {
 
 	@Test
 	@Order(2)
-	void notifiesStartgWhenCountdownTimerStarts() {
+	void notifiesStartWhenCountdownTimerStarts() {
 		expectCountdownTimerToBeInitialized();
 		context.checking(new Expectations() {
 			{

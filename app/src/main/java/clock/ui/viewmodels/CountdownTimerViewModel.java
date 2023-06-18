@@ -1,224 +1,85 @@
 package clock.ui.viewmodels;
 
-import static clock.domain.CountdownTimerStatus.INITIALIZED;
-import static clock.domain.CountdownTimerStatus.STARTED;
-import static clock.domain.CountdownTimerStatus.RUNNING;
-import static clock.domain.CountdownTimerStatus.PAUSED;
-import static clock.domain.CountdownTimerStatus.RESUMED;
-import static clock.domain.CountdownTimerStatus.STOPPED;
-import static clock.domain.CountdownTimerStatus.RESTARTED;
-
-import clock.adapters.CountdownTimerEvent;
-import clock.adapters.CountdownTimerEventAnnouncer;
 import clock.domain.CountdownTimerState;
-import clock.domain.CountdownTimerStateChangeListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 
-public class CountdownTimerViewModel implements CountdownTimerStateChangeListener {
+public final class CountdownTimerViewModel {
 
-	private static final String[] COUNTDOWN_TIMER_STATUSES = { "OFF", "STARTED", "RUNNING", "PAUSED", "RESUMED",
-			"STOPPED", "RESTARTED" };
-	public static final String[] START_BUTTON_DISPLAYS = { "Start", "Pause", "Resume", "Restart" };
+	private StringProperty status = new SimpleStringProperty();
+	private StringProperty value = new SimpleStringProperty();
+	private StringProperty runCount = new SimpleStringProperty();
+	private StringProperty controlButtonText = new SimpleStringProperty();
+	private BooleanProperty isStopButtonClickable = new SimpleBooleanProperty();
 
-	private CountdownTimerState currentState;
+	public final String getStatus() {
+		return status.getValue();
+	}
 
-	private StringProperty statusProperty = new SimpleStringProperty();
-	private StringProperty valueProperty = new SimpleStringProperty();
-	private StringProperty runCountProperty = new SimpleStringProperty();
-	private StringProperty startButtonDisplayProperty = new SimpleStringProperty();
-	private BooleanProperty isStopButtonDisableBooleanProperty = new SimpleBooleanProperty(Boolean.TRUE);
+	public final String getValue() {
+		return value.getValue();
+	}
 
-	private CountdownTimerEventAnnouncer announcer;
+	public final String getRunCount() {
+		return runCount.getValue();
+	}
 
-	@Override
-	public void countdownTimerStateChanged(CountdownTimerState newState) {
-		currentState = newState;
-		updateUserInterface();
-		announce();
+	public final String getControlButtonText() {
+		return controlButtonText.getValue();
+	}
+
+	public final Boolean getIsStopButtonClickable() {
+		return isStopButtonClickable.getValue();
 	}
 
 	public void addValueChangeListener(ChangeListener<String> valueChangeListener) {
-		valueProperty.addListener(valueChangeListener);
+		value.addListener(valueChangeListener);
 	}
 
 	public void addStatusChangeListener(ChangeListener<String> valueChangeListener) {
-		statusProperty.addListener(valueChangeListener);
+		status.addListener(valueChangeListener);
 	}
 
 	public void addRunCountChangeListener(ChangeListener<String> valueChangeListener) {
-		runCountProperty.addListener(valueChangeListener);
+		runCount.addListener(valueChangeListener);
 	}
 
-	public void addStartButtonDisplayChangeListener(ChangeListener<String> valueChangeListener) {
-		startButtonDisplayProperty.addListener(valueChangeListener);
+	public void addControlButtonTextChangeListener(ChangeListener<String> valueChangeListener) {
+		controlButtonText.addListener(valueChangeListener);
 	}
 
-	public void addIsStopButtonDisableChangeListener(ChangeListener<Boolean> valueChangeListener) {
-		isStopButtonDisableBooleanProperty.addListener(valueChangeListener);
+	public void addIsStopButtonClickableChangeListener(ChangeListener<Boolean> valueChangeListener) {
+		isStopButtonClickable.addListener(valueChangeListener);
 	}
 
-	public void addCountdownTimerEventAnnouncer(CountdownTimerEventAnnouncer announcer) {
-		this.announcer = announcer;
+	public void update(CountdownTimerState currentState) {
+		updateStatus(currentState);
+		updateValue(currentState);
+		updateRunCount(currentState);
+		updateControlButtonText(currentState);
+		updateIsStopButtonClickable(currentState);
 	}
 
-	private void updateUserInterface() {
-		updateStatus();
-		updateValue();
-		updateRunCount();
-		updateStartButtonDisplay();
-		updateIsStopButtonDisable();
+	private void updateStatus(CountdownTimerState currentState) {
+		this.status.set(currentState.status().status());
 	}
 
-	private void announce() {
-		if (STARTED.equals(currentState.status()) || RESTARTED.equals(currentState.status())
-				|| RESUMED.equals(currentState.status())) {
-			announcer.announce(CountdownTimerEvent.RUN);
-		} else if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
-			announcer.announce(CountdownTimerEvent.STOP);
-		}
+	private void updateValue(CountdownTimerState currentState) {
+		this.value.set(String.valueOf(currentState.value()));
 	}
 
-	private void updateStatus() {
-		final String status;
-		switch (currentState.status()) {
-		case INITIALIZED: {
-			status = COUNTDOWN_TIMER_STATUSES[INITIALIZED.ordinal()];
-			break;
-		}
-		case STARTED: {
-			status = COUNTDOWN_TIMER_STATUSES[STARTED.ordinal()];
-			break;
-		}
-		case RUNNING: {
-			status = COUNTDOWN_TIMER_STATUSES[RUNNING.ordinal()];
-			break;
-		}
-		case PAUSED: {
-			status = COUNTDOWN_TIMER_STATUSES[PAUSED.ordinal()];
-			break;
-		}
-		case RESUMED: {
-			status = COUNTDOWN_TIMER_STATUSES[RESUMED.ordinal()];
-			break;
-		}
-		case STOPPED: {
-			status = COUNTDOWN_TIMER_STATUSES[STOPPED.ordinal()];
-			break;
-		}
-		case RESTARTED: {
-			status = COUNTDOWN_TIMER_STATUSES[RESTARTED.ordinal()];
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + currentState.status());
-		}
-		statusProperty.setValue(status);
+	private void updateRunCount(CountdownTimerState currentState) {
+		this.runCount.set(String.valueOf(currentState.runCount()));
 	}
 
-	private void updateValue() {
-		valueProperty.setValue(String.valueOf(currentState.value()));
+	private void updateControlButtonText(CountdownTimerState currentState) {
+		this.controlButtonText.set(currentState.status().controlButtonText());
 	}
 
-	private void updateRunCount() {
-		runCountProperty.setValue(String.valueOf(currentState.runCount()));
+	private void updateIsStopButtonClickable(CountdownTimerState currentState) {
+		this.isStopButtonClickable.set(currentState.status().isStopButtonClickable());
 	}
-
-	private void updateStartButtonDisplay() {
-		final String startButtonDisplay;
-		switch (currentState.status()) {
-		case INITIALIZED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[0];
-			break;
-		}
-		case STARTED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[1];
-			break;
-		}
-		case RUNNING: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[1];
-			break;
-		}
-		case PAUSED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[2];
-			break;
-		}
-		case RESUMED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[1];
-			break;
-		}
-		case STOPPED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[3];
-			break;
-		}
-		case RESTARTED: {
-			startButtonDisplay = START_BUTTON_DISPLAYS[1];
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + currentState.status());
-		}
-		startButtonDisplayProperty.setValue(startButtonDisplay);
-	}
-
-	private void updateIsStopButtonDisable() {
-		final Boolean isStopButtonDisable;
-		switch (currentState.status()) {
-		case INITIALIZED: {
-			isStopButtonDisable = Boolean.TRUE;
-			break;
-		}
-		case STARTED: {
-			isStopButtonDisable = Boolean.FALSE;
-			break;
-		}
-		case RUNNING: {
-			isStopButtonDisable = Boolean.FALSE;
-			break;
-		}
-		case PAUSED: {
-			isStopButtonDisable = Boolean.FALSE;
-			break;
-		}
-		case RESUMED: {
-			isStopButtonDisable = Boolean.FALSE;
-			break;
-		}
-		case STOPPED: {
-			isStopButtonDisable = Boolean.TRUE;
-			break;
-		}
-		case RESTARTED: {
-			isStopButtonDisable = Boolean.FALSE;
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + currentState.status());
-		}
-		isStopButtonDisableBooleanProperty.setValue(isStopButtonDisable);
-	}
-
-	public String status() {
-		return statusProperty.getValue();
-	}
-
-	public String value() {
-		return valueProperty.getValue();
-	}
-
-	public String runCount() {
-		return runCountProperty.getValue();
-	}
-
-	public String startButtonDisplay() {
-		return startButtonDisplayProperty.getValue();
-	}
-
-	public Boolean stopButtonDisability() {
-		return isStopButtonDisableBooleanProperty.getValue();
-	}
-
 }

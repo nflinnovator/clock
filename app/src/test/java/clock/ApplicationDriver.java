@@ -1,7 +1,7 @@
 package clock;
 
 import static clock.ui.views.CountdownTimerView.RUN_COUNT_LABEL_ID;
-import static clock.ui.views.CountdownTimerView.START_BUTTON_ID;
+import static clock.ui.views.CountdownTimerView.CONTROL_BUTTON_ID;
 import static clock.ui.views.CountdownTimerView.STATUS_LABEL_ID;
 import static clock.ui.views.CountdownTimerView.STOP_BUTTON_ID;
 import static clock.ui.views.CountdownTimerView.TIMER_LABEL_ID;
@@ -81,7 +81,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 
 	void showsStartButtonWithText(String text) {
 		sleep(100);
-		verifyThat(node(START_BUTTON_ID), hasText(text));
+		verifyThat(node(CONTROL_BUTTON_ID), hasText(text));
 	}
 
 	void hasDisabledStopButton() {
@@ -100,7 +100,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 
 	private void startOrPauseOrResumeCountdownTimer() {
 		sleep(500);
-		clickOn(node(START_BUTTON_ID));
+		clickOn(node(CONTROL_BUTTON_ID));
 	}
 
 	private String node(String id) {

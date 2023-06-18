@@ -13,13 +13,13 @@ public class CountdownTimerView extends VBox {
 	public final static String TIMER_LABEL_ID = "timerLabelId";
 	public final static String RUN_COUNT_LABEL_ID = "runCountLabelId";
 	public final static String STATUS_LABEL_ID = "statusLabelId";
-	public final static String START_BUTTON_ID = "startButtonId";
+	public final static String CONTROL_BUTTON_ID = "controlButtonId";
 	public final static String STOP_BUTTON_ID = "stopButtonId";
 
 	private final CountdownTimerViewModel viewModel;
 
 	private Label statusLabel, timerLabel, runCountLabel;
-	private Button startTimerButton, stopTimerButton;
+	private Button controlCountdownTimerButton, stopCountdownTimerButton;
 	private CountdownTimerEventAnnouncer announcer;
 
 	public CountdownTimerView(CountdownTimerViewModel viewModel) {
@@ -30,19 +30,19 @@ public class CountdownTimerView extends VBox {
 		timerLabel = createLabel(value(), TIMER_LABEL_ID);
 		runCountLabel = createLabel(runCount(), RUN_COUNT_LABEL_ID);
 		statusLabel = createLabel(status(), STATUS_LABEL_ID);
-		startTimerButton = createButton(startButtonDisplay(), START_BUTTON_ID);
-		startTimerButton.setOnAction(new CountdownTimerController(announcer));
-		stopTimerButton = createButton("Stop", STOP_BUTTON_ID);
-		stopTimerButton.setDisable(stopButtonDisability());
-		stopTimerButton.setOnAction(new CountdownTimerController(announcer));
-		addToRoot(statusLabel, runCountLabel, timerLabel, startTimerButton, stopTimerButton);
+		controlCountdownTimerButton = createButton(controlButtonText(), CONTROL_BUTTON_ID);
+		controlCountdownTimerButton.setOnAction(new CountdownTimerController(announcer));
+		stopCountdownTimerButton = createButton("Stop", STOP_BUTTON_ID);
+		stopCountdownTimerButton.setDisable(isStopButtonClickable());
+		stopCountdownTimerButton.setOnAction(new CountdownTimerController(announcer));
+		addToRoot(statusLabel, runCountLabel, timerLabel, controlCountdownTimerButton, stopCountdownTimerButton);
 		viewModel.addValueChangeListener((observable, oldValue, newValue) -> timerLabel.setText(newValue));
 		viewModel.addStatusChangeListener((observable, oldValue, newValue) -> statusLabel.setText(newValue));
 		viewModel.addRunCountChangeListener((observable, oldValue, newValue) -> runCountLabel.setText(newValue));
-		viewModel.addStartButtonDisplayChangeListener(
-				(observable, oldValue, newValue) -> startTimerButton.setText(newValue));
-		viewModel.addIsStopButtonDisableChangeListener(
-				(observable, oldValue, newValue) -> stopTimerButton.setDisable(newValue));
+		viewModel.addControlButtonTextChangeListener(
+				(observable, oldValue, newValue) -> controlCountdownTimerButton.setText(newValue));
+		viewModel.addIsStopButtonClickableChangeListener(
+				(observable, oldValue, newValue) -> stopCountdownTimerButton.setDisable(!newValue));
 	}
 
 	public void addCountdownTimerEventAnnouncer(CountdownTimerEventAnnouncer announcer) {
@@ -66,23 +66,23 @@ public class CountdownTimerView extends VBox {
 	}
 
 	private String status() {
-		return viewModel.status();
+		return viewModel.getStatus();
 	}
 
 	private String value() {
-		return viewModel.value();
+		return viewModel.getValue();
 	}
 
 	private String runCount() {
-		return viewModel.runCount();
+		return viewModel.getRunCount();
 	}
 
-	private String startButtonDisplay() {
-		return viewModel.startButtonDisplay();
+	private String controlButtonText() {
+		return viewModel.getControlButtonText();
 	}
 
-	private Boolean stopButtonDisability() {
-		return viewModel.stopButtonDisability();
+	private Boolean isStopButtonClickable() {
+		return !viewModel.getIsStopButtonClickable();
 	}
 
 }

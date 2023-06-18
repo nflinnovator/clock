@@ -1,20 +1,43 @@
 package clock.adapters;
 
-import clock.domain.CountdownTimerStateChangeListener;
-import clock.domain.CountdownTimerState;
-import javafx.application.Platform;
+import static clock.domain.CountdownTimerStatus.RESTARTED;
+import static clock.domain.CountdownTimerStatus.RESUMED;
+import static clock.domain.CountdownTimerStatus.RUNNING;
+import static clock.domain.CountdownTimerStatus.STARTED;
 
-public class CountdownTimerStateChangeNotifier implements CountdownTimerStateChangeListener{
-	
-	private final CountdownTimerStateChangeListener viewModel;
-	
-	public CountdownTimerStateChangeNotifier(CountdownTimerStateChangeListener viewModel) {
+import clock.domain.CountdownTimerState;
+import clock.domain.CountdownTimerStateChangeListener;
+import clock.ui.viewmodels.CountdownTimerViewModel;
+
+public class CountdownTimerStateChangeNotifier implements CountdownTimerStateChangeListener {
+
+	private final CountdownTimerViewModel viewModel;
+
+	private CountdownTimerState currentState;
+	private CountdownTimerEventAnnouncer announcer;
+
+	public CountdownTimerStateChangeNotifier(CountdownTimerViewModel viewModel) {
 		this.viewModel = viewModel;
 	}
 
 	@Override
 	public void countdownTimerStateChanged(CountdownTimerState newState) {
-		Platform.runLater(() -> viewModel.countdownTimerStateChanged(newState));
+		currentState = newState;
+		viewModel.update(currentState);
+		announce();
+	}
+
+	public void addCountdownTimerEventAnnouncer(CountdownTimerEventAnnouncer announcer) {
+		this.announcer = announcer;
+	}
+
+	private void announce() {
+		if (STARTED.equals(currentState.status()) || RESTARTED.equals(currentState.status())
+				|| RESUMED.equals(currentState.status())) {
+			announcer.announce(CountdownTimerEvent.RUN);
+		} else if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
+			announcer.announce(CountdownTimerEvent.STOP);
+		}
 	}
 
 }
