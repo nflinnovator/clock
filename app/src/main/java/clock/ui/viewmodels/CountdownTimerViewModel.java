@@ -1,5 +1,8 @@
 package clock.ui.viewmodels;
 
+import static clock.domain.CountdownTimerStatus.RUNNING;
+
+import clock.adapters.input.CountdownTimerEventSender;
 import clock.domain.CountdownTimerState;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -8,6 +11,9 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 
 public final class CountdownTimerViewModel {
+
+	private CountdownTimerEventSender eventSender;
+	private CountdownTimerState currentState;
 
 	private StringProperty status = new SimpleStringProperty();
 	private StringProperty value = new SimpleStringProperty();
@@ -55,31 +61,61 @@ public final class CountdownTimerViewModel {
 		isStopButtonClickable.addListener(valueChangeListener);
 	}
 
-	public void update(CountdownTimerState currentState) {
-		updateStatus(currentState);
-		updateValue(currentState);
-		updateRunCount(currentState);
-		updateControlButtonText(currentState);
-		updateIsStopButtonClickable(currentState);
+	public void update(CountdownTimerState newState) {
+		currentState = newState;
+		updateStatus();
+		updateValue();
+		updateRunCount();
+		updateControlButtonText();
+		updateIsStopButtonClickable();
+		maySendOnRunOrOnStop();// TO BE CLEANED UP
 	}
 
-	private void updateStatus(CountdownTimerState currentState) {
-		this.status.set(currentState.status().status());
+	private void maySendOnRunOrOnStop() {
+		maySendOnRun();
+		maySendOnStop();
 	}
 
-	private void updateValue(CountdownTimerState currentState) {
-		this.value.set(String.valueOf(currentState.value()));
+	public void setCountdownTimerEventSender(CountdownTimerEventSender eventSender) {
+		this.eventSender = eventSender;
 	}
 
-	private void updateRunCount(CountdownTimerState currentState) {
-		this.runCount.set(String.valueOf(currentState.runCount()));
+	private void maySendOnRun() {
+		currentState.status().onRun(eventSender);
 	}
 
-	private void updateControlButtonText(CountdownTimerState currentState) {
-		this.controlButtonText.set(currentState.status().controlButtonText());
+	private void maySendOnStop() {
+		if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
+			eventSender.onStop();
+		}
+
 	}
 
-	private void updateIsStopButtonClickable(CountdownTimerState currentState) {
-		this.isStopButtonClickable.set(currentState.status().isStopButtonClickable());
+	private void updateStatus() {
+		status.set(currentState.status().status());
+	}
+
+	private void updateValue() {
+		value.set(String.valueOf(currentState.value()));
+	}
+
+	private void updateControlButtonText() {
+		controlButtonText.set(currentState.status().controlButtonText());
+	}
+
+	private void updateRunCount() {
+		runCount.set(String.valueOf(currentState.runCount()));
+	}
+
+	private void updateIsStopButtonClickable() {
+		isStopButtonClickable.set(currentState.status().isStopButtonClickable());
+	}
+
+	public void onControlButtonClick() {
+		currentState.status().onControlButtonClick(eventSender);
+	}
+
+	public void onStopButtonClick() {
+		currentState.status().onStopButtonClick(eventSender);
 	}
 }

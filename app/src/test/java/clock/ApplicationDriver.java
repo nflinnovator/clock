@@ -1,7 +1,7 @@
 package clock;
 
-import static clock.ui.views.CountdownTimerView.RUN_COUNT_LABEL_ID;
 import static clock.ui.views.CountdownTimerView.CONTROL_BUTTON_ID;
+import static clock.ui.views.CountdownTimerView.RUN_COUNT_LABEL_ID;
 import static clock.ui.views.CountdownTimerView.STATUS_LABEL_ID;
 import static clock.ui.views.CountdownTimerView.STOP_BUTTON_ID;
 import static clock.ui.views.CountdownTimerView.TIMER_LABEL_ID;

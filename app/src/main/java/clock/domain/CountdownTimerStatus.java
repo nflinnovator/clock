@@ -1,5 +1,7 @@
 package clock.domain;
 
+import clock.adapters.input.CountdownTimerEventSender;
+
 public enum CountdownTimerStatus {
 	INITIALIZED {
 		@Override
@@ -16,8 +18,24 @@ public enum CountdownTimerStatus {
 		public Boolean isStopButtonClickable() {
 			return Boolean.FALSE;
 		}
+
+		@Override
+		public void onControlButtonClick(CountdownTimerEventSender event) {
+			event.onStart();
+		}
+
+		@Override
+		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
+			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
+		}
 	},
-	STARTED, RUNNING, PAUSED {
+	STARTED {
+		@Override
+		public void onRun(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onRun();
+		}
+	},
+	RUNNING, PAUSED {
 		@Override
 		public String controlButtonText() {
 			return "Resume";
@@ -27,8 +45,19 @@ public enum CountdownTimerStatus {
 		public String status() {
 			return "PAUSED";
 		}
+
+		@Override
+		public void onControlButtonClick(CountdownTimerEventSender event) {
+			event.onResume();
+		}
 	},
-	RESUMED, STOPPED {
+	RESUMED {
+		@Override
+		public void onRun(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onRun();
+		}
+	},
+	STOPPED {
 		@Override
 		public String controlButtonText() {
 			return "Restart";
@@ -43,8 +72,25 @@ public enum CountdownTimerStatus {
 		public Boolean isStopButtonClickable() {
 			return Boolean.FALSE;
 		}
+
+		@Override
+		public void onControlButtonClick(CountdownTimerEventSender event) {
+			event.onRestart();
+		}
+
+		@Override
+		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
+			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
+		}
 	},
-	RESTARTED;
+	RESTARTED {
+		@Override
+		public void onRun(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onRun();
+		}
+	};
+
+	private static final String ON_STOP_BUTTON_CLICK_ERROR_MESSAGE = "STOP BUTTON CANNOT BE CLICKED";
 
 	public String status() {
 		return "ON";
@@ -56,5 +102,16 @@ public enum CountdownTimerStatus {
 
 	public Boolean isStopButtonClickable() {
 		return Boolean.TRUE;
+	}
+
+	public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
+		eventNotifier.onPause();
+	}
+
+	public void onStopButtonClick(CountdownTimerEventSender eventNotifier) {
+		eventNotifier.onStop();
+	}
+
+	public void onRun(CountdownTimerEventSender eventNotifier) {
 	}
 }

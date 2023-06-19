@@ -1,4 +1,4 @@
-package clock.adapters;
+package clock.adapters.output;
 
 import clock.domain.CountdownTimerStateChangeListener;
 import clock.domain.CountdownTimerState;
