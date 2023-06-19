@@ -6,15 +6,15 @@ import javafx.application.Platform;
 
 public class JavaFXThreadForCountdownTimerListener implements CountdownTimerStateChangeListener{
 	
-	private final CountdownTimerStateChangeListener viewModel;
+	private final CountdownTimerStateChangeListener stateChangeListener;
 	
-	public JavaFXThreadForCountdownTimerListener(CountdownTimerStateChangeListener viewModel) {
-		this.viewModel = viewModel;
+	public JavaFXThreadForCountdownTimerListener(CountdownTimerStateChangeListener stateChangeListener) {
+		this.stateChangeListener = stateChangeListener;
 	}
 
 	@Override
 	public void countdownTimerStateChanged(CountdownTimerState newState) {
-		Platform.runLater(() -> viewModel.countdownTimerStateChanged(newState));
+		Platform.runLater(() -> stateChangeListener.countdownTimerStateChanged(newState));
 	}
 
 }

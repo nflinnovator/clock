@@ -24,7 +24,7 @@ public class CountdownTimerView extends VBox {
 		buildView();
 	}
 
-	public void buildView() {
+	private void buildView() {
 		timerLabel = createLabel(value(), TIMER_LABEL_ID);
 		runCountLabel = createLabel(runCount(), RUN_COUNT_LABEL_ID);
 		statusLabel = createLabel(status(), STATUS_LABEL_ID);
