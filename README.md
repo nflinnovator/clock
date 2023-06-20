@@ -29,4 +29,4 @@ Clock is a java client application that enables its users to utilize it either a
 - [x] countdown timer stops ticking when it times out
 - [x] countdown timer beeps when it times out  
 ## Final Result
-![INITIALIZED COUNTDOWN TIMER](./app/bin/resources/result1.png)
+![INITIALIZED COUNTDOWN TIMER](/app/bin/resources/result1.png)
