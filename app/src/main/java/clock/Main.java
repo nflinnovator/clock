@@ -20,7 +20,7 @@ public class Main extends Application {
 
 	private static final String APPLICATION_NAME = "Clock Application";
 
-	private static final Integer INITIAL_VALUE = 5;
+	private static final Integer INITIAL_VALUE = 500;
 
 	private final CountdownTimerViewModel viewModel = new CountdownTimerViewModel();
 	private final CountdownTimerStateChangeListener stateChangeListener = new CountdownTimerStateChangeNotifier(
