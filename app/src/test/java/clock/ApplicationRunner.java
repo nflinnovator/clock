@@ -77,9 +77,9 @@ class ApplicationRunner {
     }
     
     void showsCountdownTimerHasPaused() {
-    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE - 1);
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE);
     	driver.sleep(2000);
-    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE - 1);
+    	driver.showCountdownTimerWithValue(COUNTDOWN_TIMER_INITIAL_VALUE);
     }
 
 	void close() throws Exception {

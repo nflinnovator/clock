@@ -1,4 +1,4 @@
-package clock.adapters.input;
+package clock.domain;
 
 public interface CountdownTimerEventSender {
 	void onInitialize(Integer initialValue);

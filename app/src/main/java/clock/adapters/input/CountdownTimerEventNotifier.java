@@ -1,6 +1,7 @@
 package clock.adapters.input;
 
 import clock.domain.CountdownTimer;
+import clock.domain.CountdownTimerEventSender;
 
 public class CountdownTimerEventNotifier implements CountdownTimerEventSender {
 	private final CountdownTimer countdownTimer;

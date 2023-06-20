@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import clock.adapters.input.CountdownTimerEventSender;
 import clock.adapters.input.CountdownTimerEventNotifier;
 import clock.domain.CountdownTimer;
+import clock.domain.CountdownTimerEventSender;
 
-@DisplayName("UserEventHandler Unit Test Case")
+@DisplayName("CountdownTimerEventNotifier Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CountdownTimerEventNotifierTest {
 	private final Mockery context = new Mockery();

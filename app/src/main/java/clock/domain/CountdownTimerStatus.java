@@ -1,7 +1,5 @@
 package clock.domain;
 
-import clock.adapters.input.CountdownTimerEventSender;
-
 public enum CountdownTimerStatus {
 	INITIALIZED {
 		@Override

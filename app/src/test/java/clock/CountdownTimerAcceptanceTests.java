@@ -18,7 +18,7 @@ public class CountdownTimerAcceptanceTests {
 	public static final String STATUS_OFF = "OFF";
 	public static final String STATUS_ON = "ON";
 	public static final String STATUS_PAUSE = "PAUSED";
-	public static final String STATUS_STOPPED = "STOPPED"; 
+	public static final String STATUS_STOPPED = "OFF"; 
 	public static final String OFF_BUTTON_TEXT = "Start";
 	public static final String ON_BUTTON_TEXT = "Pause";
 	public static final String PAUSED_BUTTON_TEXT = "Resume";

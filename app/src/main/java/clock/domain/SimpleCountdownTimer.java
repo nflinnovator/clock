@@ -12,6 +12,7 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	private static final Integer STOP_VALUE = 0;
 
 	private final Executor executor;
+	private final SoundPlayer soundPlayer;
 	private final CountdownTimerStateChangeListener listener;
 
 	private Integer initialValue;
@@ -20,8 +21,9 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	private Boolean isResumed;
 	private CountdownTimerState state;
 
-	public SimpleCountdownTimer(Executor executor, CountdownTimerStateChangeListener listener) {
+	public SimpleCountdownTimer(Executor executor, SoundPlayer soundPlayer,CountdownTimerStateChangeListener listener) {
 		this.executor = executor;
+		this.soundPlayer = soundPlayer;
 		this.listener = listener;
 	}
 
@@ -53,6 +55,7 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	public void pause() {
 		state = state.paused();
 		notifyStateChange();
+		soundPlayer.stopTick();
 	}
 
 	@Override
@@ -66,6 +69,8 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	public void stop() {
 		state = state.stopped();
 		notifyStateChange();
+		soundPlayer.stopTick();
+		soundPlayer.beep();
 	}
 
 	@Override
@@ -84,10 +89,12 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		while (canRun()) {
 			state = state.running(value, runCount);
 			notifyStateChange();
+			soundPlayer.tick();
 			if (!isLastRound()) {
 				pauseForOneSecond();
 				value--;
 			} else {
+				soundPlayer.stopTick();
 				value = -1;
 			}
 		}

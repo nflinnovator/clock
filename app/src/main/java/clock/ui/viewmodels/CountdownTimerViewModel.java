@@ -2,7 +2,7 @@ package clock.ui.viewmodels;
 
 import static clock.domain.CountdownTimerStatus.RUNNING;
 
-import clock.adapters.input.CountdownTimerEventSender;
+import clock.domain.CountdownTimerEventSender;
 import clock.domain.CountdownTimerState;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -45,20 +45,20 @@ public final class CountdownTimerViewModel {
 		value.addListener(valueChangeListener);
 	}
 
-	public void addStatusChangeListener(ChangeListener<String> valueChangeListener) {
-		status.addListener(valueChangeListener);
+	public void addStatusChangeListener(ChangeListener<String> statusChangeListener) {
+		status.addListener(statusChangeListener);
 	}
 
-	public void addRunCountChangeListener(ChangeListener<String> valueChangeListener) {
-		runCount.addListener(valueChangeListener);
+	public void addRunCountChangeListener(ChangeListener<String> runCountChangeListener) {
+		runCount.addListener(runCountChangeListener);
 	}
 
-	public void addControlButtonTextChangeListener(ChangeListener<String> valueChangeListener) {
-		controlButtonText.addListener(valueChangeListener);
+	public void addControlButtonTextChangeListener(ChangeListener<String> controlButtonTextChangeListener) {
+		controlButtonText.addListener(controlButtonTextChangeListener);
 	}
 
-	public void addIsStopButtonClickableChangeListener(ChangeListener<Boolean> valueChangeListener) {
-		isStopButtonClickable.addListener(valueChangeListener);
+	public void addIsStopButtonClickableChangeListener(ChangeListener<Boolean> isStopButtonClickableChangeListener) {
+		isStopButtonClickable.addListener(isStopButtonClickableChangeListener);
 	}
 
 	public void update(CountdownTimerState newState) {

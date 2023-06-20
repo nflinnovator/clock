@@ -36,7 +36,7 @@ dependencies {
 
 javafx {
     version = "20"
-    modules = [ 'javafx.controls' ]
+    modules = [ 'javafx.controls','javafx.media' ]
 }
 
 application {

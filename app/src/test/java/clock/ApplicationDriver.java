@@ -36,8 +36,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 	}
 
 	void startApplication() throws Exception {
-		// launch(Main.class, COUNTDOWN_TIMER_INITIAL_VALUE);
-		Main.main(COUNTDOWN_TIMER_INITIAL_VALUE);
+		launch(Main.class, COUNTDOWN_TIMER_INITIAL_VALUE);
 	}
 
 	void showsCountdownTimerWithValues(Integer value, Integer runCount, String status) {
@@ -109,6 +108,7 @@ class ApplicationDriver extends FxRobot implements ApplicationFixture {
 
 	@Override
 	public void init() throws Exception {
+		
 	}
 
 	@Override
