@@ -30,3 +30,4 @@ Clock is a java client application that enables its users to utilize it either a
 - [x] countdown timer beeps when it times out  
 ## Final Result
 ![INITIALIZED COUNTDOWN TIMER](/app/bin/resources/result1.png)
+![PAUSED COUNTDOWN TIMER](/app/bin/resources/result2.png)
