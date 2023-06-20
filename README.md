@@ -24,11 +24,8 @@ Clock is a java client application that enables its users to utilize it either a
 - [x] resume countdown timer
 - [x] abort countdown timer
 - [x] restart countdown timer
-#### General
-- [ ] enable a tick sound every second
-- [ ] disable a tick sound every second
-- [ ] enable a beep sound when stopwatch is stopped
-- [ ] enable a beep sound when countdown timer is stopped
-- [ ] disable a beep sound when stopwatch is stopped
-- [ ] disable a beep sound when countdown timer is stopped
+- [x] countdown timer plays a tick sound when running
+- [x] countdown timer stops ticking when paused
+- [x] countdown timer stops ticking when it times out
+- [x] countdown timer beeps when it times out  
 ## Final Result
