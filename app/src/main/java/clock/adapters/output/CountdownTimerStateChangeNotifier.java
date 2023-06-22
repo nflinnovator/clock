@@ -1,14 +1,14 @@
 package clock.adapters.output;
 
-import clock.domain.CountdownTimerState;
-import clock.domain.CountdownTimerStateChangeListener;
-import clock.ui.viewmodels.CountdownTimerViewModel;
+import clock.domain.countdowntimer.CountdownTimerState;
+import clock.domain.countdowntimer.CountdownTimerStateChangeListener;
+import clock.stateholders.CountdownTimerStateHolder;
 
 public class CountdownTimerStateChangeNotifier implements CountdownTimerStateChangeListener {
 
-	private final CountdownTimerViewModel viewModel;
+	private final CountdownTimerStateHolder viewModel;
 
-	public CountdownTimerStateChangeNotifier(CountdownTimerViewModel viewModel) {
+	public CountdownTimerStateChangeNotifier(CountdownTimerStateHolder viewModel) {
 		this.viewModel = viewModel;
 	}
 

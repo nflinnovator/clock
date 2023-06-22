@@ -1,19 +1,15 @@
-package clock.domain;
-
-import static clock.domain.CountdownTimerStatus.STARTED;
-import static clock.domain.CountdownTimerStatus.RUNNING;
-import static clock.domain.CountdownTimerStatus.RESTARTED;
-import static clock.domain.CountdownTimerStatus.RESUMED;
+package clock.domain.countdowntimer;
 
 import java.util.concurrent.Executor;
 
-public class SimpleCountdownTimer implements CountdownTimer {
+import clock.domain.soundplayer.SoundPlayer;
 
-	private static final Integer STOP_VALUE = 0;
+public class DefaultCountdownTimer implements CountdownTimer {
 
 	private final Executor executor;
 	private final SoundPlayer soundPlayer;
-	private final CountdownTimerStateChangeListener listener;
+
+	private CountdownTimerStateChangeListener listener;
 
 	private Integer initialValue;
 	private Integer value;
@@ -21,10 +17,9 @@ public class SimpleCountdownTimer implements CountdownTimer {
 	private Boolean isResumed;
 	private CountdownTimerState state;
 
-	public SimpleCountdownTimer(Executor executor, SoundPlayer soundPlayer,CountdownTimerStateChangeListener listener) {
+	public DefaultCountdownTimer(Executor executor, SoundPlayer soundPlayer) {
 		this.executor = executor;
 		this.soundPlayer = soundPlayer;
-		this.listener = listener;
 	}
 
 	@Override
@@ -35,27 +30,20 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		isResumed = Boolean.FALSE;
 		state = CountdownTimerState.initialize(value, runCount);
 		notifyStateChange();
+		soundPlayer.initialize();
 	}
 
 	@Override
 	public void start() {
 		state = state.started();
 		notifyStateChange();
-	}
-
-	@Override
-	public void run() {
-		if (!isResumed) {
-			runCount++;
-		}
-		executor.execute(() -> countdown());
+		run();
 	}
 
 	@Override
 	public void pause() {
 		state = state.paused();
 		notifyStateChange();
-		soundPlayer.stopTick();
 	}
 
 	@Override
@@ -63,13 +51,13 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		isResumed = Boolean.TRUE;
 		state = state.resumed();
 		notifyStateChange();
+		run();
 	}
 
 	@Override
 	public void stop() {
 		state = state.stopped();
 		notifyStateChange();
-		soundPlayer.stopTick();
 		soundPlayer.beep();
 	}
 
@@ -79,22 +67,37 @@ public class SimpleCountdownTimer implements CountdownTimer {
 		isResumed = Boolean.FALSE;
 		state = state.restarted(value);
 		notifyStateChange();
+		run();
+	}
+	
+	@Override
+	public void addCountdownTimerStateChangeListener(CountdownTimerStateChangeListener listener) {
+		this.listener = listener;
 	}
 
 	public CountdownTimerState getCurrentState() {
 		return state;
 	}
 
+	private void run() {
+		if (!isResumed) {
+			runCount++;
+		}
+		executor.execute(() -> countdown());
+	}
+
 	private void countdown() {
-		while (canRun()) {
+		while (state.canRun()) {
 			state = state.running(value, runCount);
 			notifyStateChange();
 			soundPlayer.tick();
-			if (!isLastRound()) {
+			if (!state.isLastRound()) {
 				pauseForOneSecond();
 				value--;
 			} else {
-				soundPlayer.stopTick();
+				state = state.stopped();
+				notifyStateChange();
+				soundPlayer.beep();
 				value = -1;
 			}
 		}
@@ -102,23 +105,6 @@ public class SimpleCountdownTimer implements CountdownTimer {
 
 	private void notifyStateChange() {
 		listener.countdownTimerStateChanged(state);
-	}
-
-	private Boolean canRun() {
-		return hasNotTimedout() && isRunnable();
-	}
-
-	private Boolean hasNotTimedout() {
-		return value >= STOP_VALUE;
-	}
-
-	private Boolean isLastRound() {
-		return value == STOP_VALUE;
-	}
-
-	private Boolean isRunnable() {
-		return STARTED.equals(state.status()) || RUNNING.equals(state.status()) || RESTARTED.equals(state.status())
-				|| RESUMED.equals(state.status());
 	}
 
 	private void pauseForOneSecond() {

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import clock.adapters.input.CountdownTimerEventNotifier;
-import clock.domain.CountdownTimer;
-import clock.domain.CountdownTimerEventSender;
+import clock.domain.countdowntimer.CountdownTimer;
+import clock.domain.countdowntimer.CountdownTimerEventSender;
 
 @DisplayName("CountdownTimerEventNotifier Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -53,21 +53,6 @@ class CountdownTimerEventNotifierTest {
 
 	@Test
 	@Order(3)
-	void notifiesCountdownTimerRunWhenItReceivesOnRunMessage() {
-
-		context.checking(new Expectations() {
-			{
-				oneOf(countdownTimer).run();
-			}
-		});
-
-		eventNotifier.onRun();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	@Order(4)
 	void notifiesCountdownTimerPauseWhenItReceivesOnPauseMessage() {
 
 		context.checking(new Expectations() {
@@ -82,7 +67,7 @@ class CountdownTimerEventNotifierTest {
 	}
 
 	@Test
-	@Order(5)
+	@Order(4)
 	void notifiesCountdownTimerResumeWhenItReceivesOnResumeMessage() {
 
 		context.checking(new Expectations() {
@@ -97,7 +82,7 @@ class CountdownTimerEventNotifierTest {
 	}
 
 	@Test
-	@Order(6)
+	@Order(5)
 	void notifiesCountdownTimerStopWhenStopCountdownTimerEventReceived() {
 
 		context.checking(new Expectations() {
@@ -112,7 +97,7 @@ class CountdownTimerEventNotifierTest {
 	}
 
 	@Test
-	@Order(7)
+	@Order(6)
 	void notifiesCountdownTimerRestartWhenRestartCountdownTimerEventReceived() {
 
 		context.checking(new Expectations() {

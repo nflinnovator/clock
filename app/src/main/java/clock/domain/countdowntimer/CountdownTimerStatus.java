@@ -1,4 +1,4 @@
-package clock.domain;
+package clock.domain.countdowntimer;
 
 public enum CountdownTimerStatus {
 	INITIALIZED {
@@ -26,14 +26,13 @@ public enum CountdownTimerStatus {
 		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
 			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
 		}
-	},
-	STARTED {
+		
 		@Override
-		public void onRun(CountdownTimerEventSender eventNotifier) {
-			eventNotifier.onRun();
+		Boolean isRunnable() {
+			return Boolean.FALSE;
 		}
 	},
-	RUNNING, PAUSED {
+	STARTED, RUNNING, PAUSED {
 		@Override
 		public String controlButtonText() {
 			return "Resume";
@@ -48,14 +47,13 @@ public enum CountdownTimerStatus {
 		public void onControlButtonClick(CountdownTimerEventSender event) {
 			event.onResume();
 		}
-	},
-	RESUMED {
+		
 		@Override
-		public void onRun(CountdownTimerEventSender eventNotifier) {
-			eventNotifier.onRun();
+		Boolean isRunnable() {
+			return Boolean.FALSE;
 		}
 	},
-	STOPPED {
+	RESUMED, STOPPED {
 		@Override
 		public String controlButtonText() {
 			return "Restart";
@@ -80,13 +78,13 @@ public enum CountdownTimerStatus {
 		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
 			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
 		}
-	},
-	RESTARTED {
+		
 		@Override
-		public void onRun(CountdownTimerEventSender eventNotifier) {
-			eventNotifier.onRun();
+		Boolean isRunnable() {
+			return Boolean.FALSE;
 		}
-	};
+	},
+	RESTARTED;
 
 	private static final String ON_STOP_BUTTON_CLICK_ERROR_MESSAGE = "STOP BUTTON CANNOT BE CLICKED";
 
@@ -101,6 +99,10 @@ public enum CountdownTimerStatus {
 	public Boolean isStopButtonClickable() {
 		return Boolean.TRUE;
 	}
+	
+	Boolean isRunnable() {
+		return Boolean.TRUE;
+	}
 
 	public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
 		eventNotifier.onPause();
@@ -108,8 +110,5 @@ public enum CountdownTimerStatus {
 
 	public void onStopButtonClick(CountdownTimerEventSender eventNotifier) {
 		eventNotifier.onStop();
-	}
-
-	public void onRun(CountdownTimerEventSender eventNotifier) {
 	}
 }

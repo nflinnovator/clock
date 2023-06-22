@@ -1,16 +1,14 @@
-package clock.ui.viewmodels;
+package clock.stateholders;
 
-import static clock.domain.CountdownTimerStatus.RUNNING;
-
-import clock.domain.CountdownTimerEventSender;
-import clock.domain.CountdownTimerState;
+import clock.domain.countdowntimer.CountdownTimerEventSender;
+import clock.domain.countdowntimer.CountdownTimerState;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 
-public final class CountdownTimerViewModel {
+public final class CountdownTimerStateHolder {
 
 	private CountdownTimerEventSender eventSender;
 	private CountdownTimerState currentState;
@@ -68,27 +66,10 @@ public final class CountdownTimerViewModel {
 		updateRunCount();
 		updateControlButtonText();
 		updateIsStopButtonClickable();
-		maySendOnRunOrOnStop();// TO BE CLEANED UP
-	}
-
-	private void maySendOnRunOrOnStop() {
-		maySendOnRun();
-		maySendOnStop();
 	}
 
 	public void setCountdownTimerEventSender(CountdownTimerEventSender eventSender) {
 		this.eventSender = eventSender;
-	}
-
-	private void maySendOnRun() {
-		currentState.status().onRun(eventSender);
-	}
-
-	private void maySendOnStop() {
-		if (0 == currentState.value() && RUNNING.equals(currentState.status())) {
-			eventSender.onStop();
-		}
-
 	}
 
 	private void updateStatus() {

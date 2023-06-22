@@ -1,6 +1,6 @@
 package clock.ui.views;
 
-import clock.ui.viewmodels.CountdownTimerViewModel;
+import clock.stateholders.CountdownTimerStateHolder;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,12 +14,12 @@ public class CountdownTimerView extends VBox {
 	public final static String CONTROL_BUTTON_ID = "controlButtonId";
 	public final static String STOP_BUTTON_ID = "stopButtonId";
 
-	private final CountdownTimerViewModel viewModel;
+	private final CountdownTimerStateHolder viewModel;
 
 	private Label statusLabel, timerLabel, runCountLabel;
 	private Button controlCountdownTimerButton, stopCountdownTimerButton;
 
-	public CountdownTimerView(CountdownTimerViewModel viewModel) {
+	public CountdownTimerView(CountdownTimerStateHolder viewModel) {
 		this.viewModel = viewModel;
 		buildView();
 	}

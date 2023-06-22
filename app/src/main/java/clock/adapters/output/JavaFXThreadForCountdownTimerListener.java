@@ -1,7 +1,7 @@
 package clock.adapters.output;
 
-import clock.domain.CountdownTimerStateChangeListener;
-import clock.domain.CountdownTimerState;
+import clock.domain.countdowntimer.CountdownTimerState;
+import clock.domain.countdowntimer.CountdownTimerStateChangeListener;
 import javafx.application.Platform;
 
 public class JavaFXThreadForCountdownTimerListener implements CountdownTimerStateChangeListener{

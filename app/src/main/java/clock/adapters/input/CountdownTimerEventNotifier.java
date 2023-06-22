@@ -1,7 +1,7 @@
 package clock.adapters.input;
 
-import clock.domain.CountdownTimer;
-import clock.domain.CountdownTimerEventSender;
+import clock.domain.countdowntimer.CountdownTimer;
+import clock.domain.countdowntimer.CountdownTimerEventSender;
 
 public class CountdownTimerEventNotifier implements CountdownTimerEventSender {
 	private final CountdownTimer countdownTimer;
@@ -18,11 +18,6 @@ public class CountdownTimerEventNotifier implements CountdownTimerEventSender {
 	@Override
 	public void onStart() {
 		countdownTimer.start();
-	}
-
-	@Override
-	public void onRun() {
-		countdownTimer.run();
 	}
 
 	@Override
