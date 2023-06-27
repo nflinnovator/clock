@@ -3,17 +3,16 @@ package clock;
 import java.util.concurrent.Executors;
 
 import clock.adapters.input.CountdownTimerEventNotifier;
-import clock.adapters.output.CountdownTimerStateChangeNotifier;
-import clock.adapters.output.JavaFXThreadForCountdownTimerListener;
-import clock.adapters.output.SoundPlayerStateChangeNotifier;
-import clock.domain.countdowntimer.CountdownTimer;
+import clock.adapters.output.JavaFXThreadForCountdownTimerObserver;
 import clock.domain.countdowntimer.CountdownTimerEventSender;
+import clock.domain.countdowntimer.CountdownTimerManager;
+import clock.domain.countdowntimer.CountdownTimerState;
 import clock.domain.countdowntimer.DefaultCountdownTimer;
+import clock.domain.countdowntimer.DefaultCountdownTimerManager;
 import clock.domain.soundplayer.ClockSoundPlayer;
-import clock.domain.soundplayer.SoundPlayer;
+import clock.domain.soundplayer.SoundPlayerState;
+import clock.shared.StateHolder;
 import clock.sound.JavaFxSoundPlayer;
-import clock.stateholders.CountdownTimerStateHolder;
-import clock.stateholders.SoundPlayerStateHolder;
 import clock.ui.views.CountdownTimerView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -25,12 +24,14 @@ public class Main extends Application {
 
 	private static Integer initialValue;
 
-	private final CountdownTimerStateHolder countdownTimerStateHolder = new CountdownTimerStateHolder();
-	private final SoundPlayerStateHolder soundPlayerStateHolder = new SoundPlayerStateHolder();
-	private final SoundPlayer soundPlayer = new ClockSoundPlayer();
-	private final CountdownTimer countdownTimer = new DefaultCountdownTimer(Executors.newSingleThreadExecutor(),
+	private final StateHolder<CountdownTimerState> countdownTimerStateHolder = new StateHolder<>();
+	private final StateHolder<SoundPlayerState> soundPlayerStateHolder = new StateHolder<>();
+	private final ClockSoundPlayer soundPlayer = new ClockSoundPlayer();
+	private final DefaultCountdownTimer countdownTimer = new DefaultCountdownTimer(Executors.newSingleThreadExecutor(),
 			soundPlayer);
-	private final CountdownTimerEventSender eventSender = new CountdownTimerEventNotifier(countdownTimer);
+	private final CountdownTimerManager countdownTimerManager = new DefaultCountdownTimerManager(countdownTimer);
+	private final CountdownTimerEventSender countdownTimerEventSender = new CountdownTimerEventNotifier(
+			countdownTimerManager);
 
 	public static void main(String... args) {
 		initialValue = Integer.parseInt(args[0]);
@@ -39,18 +40,17 @@ public class Main extends Application {
 
 	@Override
 	public void init() throws Exception {
-		countdownTimer.addCountdownTimerStateChangeListener(new JavaFXThreadForCountdownTimerListener(
-				new CountdownTimerStateChangeNotifier(countdownTimerStateHolder)));
-		soundPlayer.addSoundPlayerStateChangeListener(new SoundPlayerStateChangeNotifier(soundPlayerStateHolder));
-		eventSender.onInitialize(initialValue);
-		countdownTimerStateHolder.setCountdownTimerEventSender(eventSender);
+		countdownTimer.addObserver(new JavaFXThreadForCountdownTimerObserver(countdownTimerStateHolder));
+		soundPlayer.addObserver(soundPlayerStateHolder);
+		countdownTimerEventSender.onInitialize(initialValue);
 		new JavaFxSoundPlayer(soundPlayerStateHolder);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle(APPLICATION_NAME);
-		primaryStage.setScene(new Scene(new CountdownTimerView(countdownTimerStateHolder), 300, 300));
+		primaryStage.setScene(
+				new Scene(new CountdownTimerView(countdownTimerStateHolder, countdownTimerEventSender), 300, 300));
 		primaryStage.show();
 	}
 

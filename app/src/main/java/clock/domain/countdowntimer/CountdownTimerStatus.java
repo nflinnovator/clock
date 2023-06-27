@@ -3,112 +3,121 @@ package clock.domain.countdowntimer;
 public enum CountdownTimerStatus {
 	INITIALIZED {
 		@Override
-		public String controlButtonText() {
+		String status() {
+			return "OFF";
+		}
+
+		@Override
+		String controlButtonText() {
 			return "Start";
 		}
 
 		@Override
-		public String status() {
-			return "OFF";
+		boolean isStopButtonClickable() {
+			return false;
 		}
 
 		@Override
-		public Boolean isStopButtonClickable() {
-			return Boolean.FALSE;
+		public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onStart();
 		}
 
 		@Override
-		public void onControlButtonClick(CountdownTimerEventSender event) {
-			event.onStart();
-		}
-
-		@Override
-		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
+		public void onStopButtonClick(CountdownTimerEventSender eventNotifier) {
 			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
 		}
-		
+	},
+	STARTED {
 		@Override
-		Boolean isRunnable() {
-			return Boolean.FALSE;
+		boolean canRun() {
+			return true;
 		}
 	},
-	STARTED, RUNNING, PAUSED {
+	RUNNING {
 		@Override
-		public String controlButtonText() {
-			return "Resume";
+		boolean canRun() {
+			return true;
 		}
-
+	},
+	PAUSED {
 		@Override
-		public String status() {
+		String status() {
 			return "PAUSED";
 		}
 
 		@Override
-		public void onControlButtonClick(CountdownTimerEventSender event) {
-			event.onResume();
-		}
-		
-		@Override
-		Boolean isRunnable() {
-			return Boolean.FALSE;
-		}
-	},
-	RESUMED, STOPPED {
-		@Override
-		public String controlButtonText() {
-			return "Restart";
+		String controlButtonText() {
+			return "Resume";
 		}
 
 		@Override
-		public String status() {
+		public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onStart();
+		}
+
+		@Override
+		boolean isPaused() {
+			return true;
+		}
+	},
+	STOPPED {
+		@Override
+		String status() {
 			return "OFF";
 		}
 
 		@Override
-		public Boolean isStopButtonClickable() {
-			return Boolean.FALSE;
+		String controlButtonText() {
+			return "Restart";
 		}
 
 		@Override
-		public void onControlButtonClick(CountdownTimerEventSender event) {
-			event.onRestart();
+		boolean isStopButtonClickable() {
+			return false;
 		}
 
 		@Override
-		public void onStopButtonClick(CountdownTimerEventSender countdownTimer) {
+		public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
+			eventNotifier.onStart();
+		}
+
+		@Override
+		public void onStopButtonClick(CountdownTimerEventSender eventNotifier) {
 			throw new IllegalArgumentException(ON_STOP_BUTTON_CLICK_ERROR_MESSAGE);
 		}
-		
-		@Override
-		Boolean isRunnable() {
-			return Boolean.FALSE;
-		}
-	},
-	RESTARTED;
+	};
 
-	private static final String ON_STOP_BUTTON_CLICK_ERROR_MESSAGE = "STOP BUTTON CANNOT BE CLICKED";
-
-	public String status() {
+	String status() {
 		return "ON";
 	}
 
-	public String controlButtonText() {
+	String controlButtonText() {
 		return "Pause";
 	}
-
-	public Boolean isStopButtonClickable() {
-		return Boolean.TRUE;
-	}
 	
-	Boolean isRunnable() {
-		return Boolean.TRUE;
+	String stopButtonText() {
+		return "Stop";
+	}
+
+	boolean isStopButtonClickable() {
+		return true;
 	}
 
 	public void onControlButtonClick(CountdownTimerEventSender eventNotifier) {
 		eventNotifier.onPause();
 	}
 
+	private static final String ON_STOP_BUTTON_CLICK_ERROR_MESSAGE = "STOP BUTTON CANNOT BE CLICKED";
+
 	public void onStopButtonClick(CountdownTimerEventSender eventNotifier) {
 		eventNotifier.onStop();
+	}
+
+	boolean canRun() {
+		return false;
+	}
+
+	boolean isPaused() {
+		return false;
 	}
 }

@@ -8,21 +8,22 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import clock.adapters.input.CountdownTimerEventNotifier;
+import clock.domain.countdowntimer.CountdownTimer;
 import clock.domain.countdowntimer.CountdownTimerManager;
-import clock.domain.countdowntimer.CountdownTimerEventSender;
+import clock.domain.countdowntimer.DefaultCountdownTimerManager;
 
-@DisplayName("CountdownTimerEventNotifier Unit Test Case")
+@DisplayName("CountdownTimerManager Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class CountdownTimerEventNotifierTest {
+class CountdownTimerManagerTest {
+
 	private final Mockery context = new Mockery();
-	private final CountdownTimerManager countdownTimer = context.mock(CountdownTimerManager.class);
-	private final CountdownTimerEventSender eventNotifier = new CountdownTimerEventNotifier(countdownTimer);
+	private final CountdownTimer countdownTimer = context.mock(CountdownTimer.class);
+	private final CountdownTimerManager countdownTimerManager = new DefaultCountdownTimerManager(countdownTimer);
 
 	@Test
 	@Order(1)
-	void notifiesCountdownTimerInitializeWhenItReceivesOnInitializeMessage() {
-
+	void initializeCountdownTimerWhenItReceivesOnInitializeMessage() {
+		
 		final var initialValue = 1;
 
 		context.checking(new Expectations() {
@@ -31,29 +32,31 @@ class CountdownTimerEventNotifierTest {
 			}
 		});
 
-		eventNotifier.onInitialize(initialValue);
+		countdownTimerManager.initialize(initialValue);
 
 		context.assertIsSatisfied();
-	}
 
+	}
+	
 	@Test
 	@Order(2)
-	void notifiesCountdownTimerStartWhenItReceivesOnStartMessage() {
+	void runCountdownTimerWhenItReceivesOnStartMessage() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(countdownTimer).start();
+				oneOf(countdownTimer).countdown();
 			}
 		});
 
-		eventNotifier.onStart();
+		countdownTimerManager.start();
 
 		context.assertIsSatisfied();
-	}
 
+	}
+	
 	@Test
 	@Order(3)
-	void notifiesCountdownTimerPauseWhenItReceivesOnPauseMessage() {
+	void pauseCountdownTimerWhenItReceivesOnPauseMessage() {
 
 		context.checking(new Expectations() {
 			{
@@ -61,29 +64,31 @@ class CountdownTimerEventNotifierTest {
 			}
 		});
 
-		eventNotifier.onPause();
+		countdownTimerManager.pause();
 
 		context.assertIsSatisfied();
-	}
 
+	}
+	
 	@Test
 	@Order(4)
-	void notifiesCountdownTimerResumeWhenItReceivesOnResumeMessage() {
+	void runCountdownTimerWhenItReceivesOnResumeMessage() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(countdownTimer).resume();
+				oneOf(countdownTimer).countdown();
 			}
 		});
 
-		eventNotifier.onResume();
+		countdownTimerManager.resume();
 
 		context.assertIsSatisfied();
-	}
 
+	}
+	
 	@Test
 	@Order(5)
-	void notifiesCountdownTimerStopWhenStopCountdownTimerEventReceived() {
+	void stopCountdownTimerWhenItReceivesOnStopMessage() {
 
 		context.checking(new Expectations() {
 			{
@@ -91,9 +96,10 @@ class CountdownTimerEventNotifierTest {
 			}
 		});
 
-		eventNotifier.onStop();
+		countdownTimerManager.stop();
 
 		context.assertIsSatisfied();
+
 	}
 
 }

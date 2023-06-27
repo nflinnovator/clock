@@ -1,43 +1,38 @@
 package clock.adapters.input;
 
-import clock.domain.countdowntimer.CountdownTimer;
+import clock.domain.countdowntimer.CountdownTimerManager;
 import clock.domain.countdowntimer.CountdownTimerEventSender;
 
 public class CountdownTimerEventNotifier implements CountdownTimerEventSender {
-	private final CountdownTimer countdownTimer;
+	private final CountdownTimerManager countdownTimerManager;
 
-	public CountdownTimerEventNotifier(CountdownTimer countdownTimer) {
-		this.countdownTimer = countdownTimer;
+	public CountdownTimerEventNotifier(CountdownTimerManager countdownTimerManager) {
+		this.countdownTimerManager = countdownTimerManager;
 	}
 
 	@Override
 	public void onInitialize(Integer initialValue) {
-		countdownTimer.initialize(initialValue);
+		countdownTimerManager.initialize(initialValue);
 	}
 
 	@Override
 	public void onStart() {
-		countdownTimer.start();
+		countdownTimerManager.start();
 	}
 
 	@Override
 	public void onPause() {
-		countdownTimer.pause();
+		countdownTimerManager.pause();
 	}
 
 	@Override
 	public void onResume() {
-		countdownTimer.resume();
+		countdownTimerManager.resume();
 	}
 
 	@Override
 	public void onStop() {
-		countdownTimer.stop();
-	}
-
-	@Override
-	public void onRestart() {
-		countdownTimer.restart();
+		countdownTimerManager.stop();
 	}
 
 }

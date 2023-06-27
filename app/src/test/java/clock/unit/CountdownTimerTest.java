@@ -2,20 +2,18 @@ package clock.unit;
 
 import static clock.domain.countdowntimer.CountdownTimerStatus.INITIALIZED;
 import static clock.domain.countdowntimer.CountdownTimerStatus.PAUSED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.RESTARTED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.RESUMED;
 import static clock.domain.countdowntimer.CountdownTimerStatus.RUNNING;
 import static clock.domain.countdowntimer.CountdownTimerStatus.STARTED;
 import static clock.domain.countdowntimer.CountdownTimerStatus.STOPPED;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.States;
+import org.jmock.Sequence;
 import org.jmock.lib.concurrent.DeterministicExecutor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -24,36 +22,36 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import clock.domain.countdowntimer.CountdownTimerState;
-import clock.domain.countdowntimer.CountdownTimerStateChangeListener;
 import clock.domain.countdowntimer.CountdownTimerStatus;
 import clock.domain.countdowntimer.DefaultCountdownTimer;
 import clock.domain.soundplayer.SoundPlayer;
+import clock.shared.Observer;
 
-@DisplayName("Countdown Timer Unit Test Case")
+@DisplayName("CountdownTimer Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CountdownTimerTest {
 
 	private final Mockery context = new Mockery();
-	private final DeterministicExecutor executor = new DeterministicExecutor();
-	private final CountdownTimerStateChangeListener listener = context.mock(CountdownTimerStateChangeListener.class);
+	@SuppressWarnings("unchecked")
+	private final Observer<CountdownTimerState> observer = (Observer<CountdownTimerState>) context.mock(Observer.class);
 	private final SoundPlayer soundPlayer = context.mock(SoundPlayer.class);
+	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final DefaultCountdownTimer countdownTimer = new DefaultCountdownTimer(executor, soundPlayer);
+	final Sequence countdownTimerSequence = context.sequence("countdown timer sequence");
 	private final static Integer INITIAL_VALUE = 1;
-	private final States state = context.states("state").startsAs("Initialized");
 
 	@BeforeEach
-	void addListener() {
-		countdownTimer.addCountdownTimerStateChangeListener(listener);
+	void addObserver() {
+		countdownTimer.addObserver(observer);
 	}
 
 	@Test
 	@Order(1)
-	void notifiesInitializationWhenCountdownTimerInitializes() {
+	void initializesWhenItReceivesInitializeCommand() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				oneOf(soundPlayer).initialize();
+				oneOf(observer).onStateChange(new CountdownTimerState(INITIALIZED, INITIAL_VALUE, INITIAL_VALUE, 0));
 			}
 		});
 
@@ -61,277 +59,152 @@ class CountdownTimerTest {
 
 		context.assertIsSatisfied();
 
-		assertThat(currentValue(), equalTo(INITIAL_VALUE));
-		assertThat(runCount(), equalTo(0));
 	}
 
 	@Test
 	@Order(2)
-	void notifiesStartWhenCountdownTimerStarts() {
+	void runsWhenItReceivesStartCommand() {
 		expectCountdownTimerToBeInitialized();
+		ignoreAllSoundPlayerEvents();
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				when(state.is("Initialized"));
+				oneOf(observer).onStateChange(new CountdownTimerState(STARTED, INITIAL_VALUE, INITIAL_VALUE + 1, 1));
+				inSequence(countdownTimerSequence);
+				exactly(INITIAL_VALUE + 1).of(observer).onStateChange(with(aRunningCountdownTimer()));
+				inSequence(countdownTimerSequence);
+				oneOf(observer).onStateChange(new CountdownTimerState(STOPPED, INITIAL_VALUE, 0, 1));
+				inSequence(countdownTimerSequence);
 			}
 		});
 
 		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
+		countdownTimer.countdown();
+		executor.runUntilIdle();
 
 		context.assertIsSatisfied();
 
-		assertThat(currentValue(), equalTo(INITIAL_VALUE));
-		assertThat(runCount(), equalTo(0));
+	}
+
+	@Test
+	@Order(3)
+	void pausesWhenItReceivesPauseCommand() {
+		expectCountdownTimerToBeInitialized();
+		context.checking(new Expectations() {
+			{
+				oneOf(observer).onStateChange(new CountdownTimerState(PAUSED, INITIAL_VALUE, INITIAL_VALUE, 0));
+				never(observer).onStateChange(new CountdownTimerState(STARTED, INITIAL_VALUE, INITIAL_VALUE, 1));
+				never(observer).onStateChange(with(aRunningCountdownTimer()));
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.pause();
+
+		context.assertIsSatisfied();
+
+	}
+
+	@Test
+	@Order(4)
+	void runsWhenItReceivesResumeCommand() {
+		expectCountdownTimerToBePaused();
+		ignoreAllSoundPlayerEvents();
+		context.checking(new Expectations() {
+			{
+				oneOf(observer).onStateChange(new CountdownTimerState(STARTED, INITIAL_VALUE, INITIAL_VALUE + 1, 0));
+				inSequence(countdownTimerSequence);
+				exactly(INITIAL_VALUE + 1).of(observer).onStateChange(with(aRunningCountdownTimer()));
+				inSequence(countdownTimerSequence);
+				oneOf(observer).onStateChange(new CountdownTimerState(STOPPED, INITIAL_VALUE, 0, 0));
+				inSequence(countdownTimerSequence);
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.pause();
+		countdownTimer.countdown();
+		executor.runUntilIdle();
+
+		context.assertIsSatisfied();
+
+	}
+
+	@Test
+	@Order(5)
+	void stopsWhenItReceivesStopCommand() {
+		expectCountdownTimerToBeInitialized();
+		context.checking(new Expectations() {
+			{
+				oneOf(observer).onStateChange(new CountdownTimerState(STOPPED, INITIAL_VALUE, 0, 0));
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.stop();
+
+		context.assertIsSatisfied();
+
+	}
+
+	@Test
+	@Order(6)
+	void playASoundWhenenerTheCountdownTimerCountsDown() {
+		ignoreAllCountdownTimerEvents();
+		context.checking(new Expectations() {
+			{
+				exactly(INITIAL_VALUE + 1).of(soundPlayer).play(true);
+				oneOf(soundPlayer).play(false);
+			}
+		});
+
+		countdownTimer.initialize(INITIAL_VALUE);
+		countdownTimer.countdown();
+		executor.runUntilIdle();
+
+		context.assertIsSatisfied();
+
+	}
+
+	@AfterEach
+	void removeObserver() {
+		countdownTimer.removeObserver(observer);
 	}
 
 	private void expectCountdownTimerToBeInitialized() {
 		context.checking(new Expectations() {
 			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				then(state.is("Initialized"));
-				ignoring(soundPlayer).initialize();
+				allowing(observer).onStateChange(new CountdownTimerState(INITIALIZED, INITIAL_VALUE, INITIAL_VALUE, 0));
 			}
 		});
-	}
-
-	@Test
-	@Order(3)
-	void notifiesPauseWhenCountdownTimerPauses() {
-		expectCountdownTimerToBeRunning();
-		context.checking(new Expectations() {
-			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
-				when(state.is("Running"));
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-		countdownTimer.pause();
-
-		context.assertIsSatisfied();
-
-		assertThat(runCount(), equalTo(1));
-	}
-
-	private void expectCountdownTimerToBeRunning() {
-		context.checking(new Expectations() {
-			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				then(state.is("Running"));
-				ignoring(soundPlayer).initialize();
-				ignoring(soundPlayer).tick();
-			}
-		});
-	}
-
-	@Test
-	@Order(4)
-	void notifiesResumeWhenCountdownTimerResumes() {
-		expectCountdownTimerToBePaused();
-		context.checking(new Expectations() {
-			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RESUMED)));
-				when(state.is("Paused"));
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-		countdownTimer.pause();
-		countdownTimer.resume();
-
-		context.assertIsSatisfied();
 	}
 
 	private void expectCountdownTimerToBePaused() {
 		context.checking(new Expectations() {
 			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(PAUSED)));
-				then(state.is("Paused"));
-				ignoring(soundPlayer).initialize();
-				ignoring(soundPlayer).tick();
+				allowing(observer).onStateChange(new CountdownTimerState(INITIALIZED, INITIAL_VALUE, INITIAL_VALUE, 0));
+				allowing(observer).onStateChange(new CountdownTimerState(PAUSED, INITIAL_VALUE, INITIAL_VALUE, 0));
 			}
 		});
 	}
 
-	@Test
-	@Order(5)
-	void notifiesStopWhenCountdownTimerStops() {
-		expectCountdownTimerToRunUntilItTimesOut();
+	private void ignoreAllCountdownTimerEvents() {
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
-				when(state.is("Running"));
+				ignoring(observer).onStateChange(with(any(CountdownTimerState.class)));
 			}
 		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-		countdownTimer.stop();
-
-		context.assertIsSatisfied();
-
-		assertThat(runCount(), equalTo(1));
-		assertThat(currentValue(), equalTo(0));
 	}
 
-	private void expectCountdownTimerToRunUntilItTimesOut() {
+	private void ignoreAllSoundPlayerEvents() {
 		context.checking(new Expectations() {
 			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				then(state.is("Running"));
-				ignoring(soundPlayer).initialize();
-				ignoring(soundPlayer).tick();
-				ignoring(soundPlayer).beep();
+				ignoring(soundPlayer).play(with(any(Boolean.class)));
 			}
 		});
 	}
 
-	@Test
-	@Order(6)
-	void notifiesRestartWhenCountdownTimerRestarts() {
-		expectCountdownTimerToRunUntilItStops();
-		context.checking(new Expectations() {
-			{
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RESTARTED)));
-				when(state.is("Stopped"));
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-		countdownTimer.stop();
-		countdownTimer.restart();
-
-		context.assertIsSatisfied();
-
-		assertThat(runCount(), equalTo(1));
-		assertThat(currentValue(), equalTo(INITIAL_VALUE));
-	}
-
-	private void expectCountdownTimerToRunUntilItStops() {
-		context.checking(new Expectations() {
-			{
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				allowing(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
-				then(state.is("Stopped"));
-				ignoring(soundPlayer).initialize();
-				ignoring(soundPlayer).tick();
-				ignoring(soundPlayer).beep();
-			}
-		});
-	}
-	
-	@Test
-	@Order(7)
-	void notifiesSoundPlayerToInitializeWhenItInitializes() {
-
-		context.checking(new Expectations() {
-			{
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				oneOf(soundPlayer).initialize();
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	@Order(8)
-	void notifiesTickWhenCountdownTimerRuns() {
-
-		context.checking(new Expectations() {
-			{
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				exactly(INITIAL_VALUE + 1).of(soundPlayer).tick();
-				oneOf(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
-				ignoring(soundPlayer).initialize();
-				ignoring(soundPlayer).beep();
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	@Order(9)
-	void notifiesSoundPlayerToTickWhenItStarts() {
-
-		context.checking(new Expectations() {
-			{
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
-				allowing(soundPlayer).initialize();
-				exactly(INITIAL_VALUE + 1).of(soundPlayer).tick();
-				allowing(soundPlayer).beep();
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	@Order(10)
-	void notifiesSoundPlayerToBeepWhenItTimesOut() {
-
-		context.checking(new Expectations() {
-			{
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(INITIALIZED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STARTED)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(RUNNING)));
-				ignoring(listener).countdownTimerStateChanged(with(aCountdownTimerThatIs(STOPPED)));
-				allowing(soundPlayer).initialize();
-				allowing(soundPlayer).tick();
-				oneOf(soundPlayer).beep();
-			}
-		});
-
-		countdownTimer.initialize(INITIAL_VALUE);
-		countdownTimer.start();
-		executor.runUntilIdle();
-
-		context.assertIsSatisfied();
-	}
-
-	private Integer currentValue() {
-		return countdownTimer.getCurrentState().value();
-	}
-
-	private Integer runCount() {
-		return countdownTimer.getCurrentState().runCount();
-	}
-
-	private Matcher<CountdownTimerState> aCountdownTimerThatIs(final CountdownTimerStatus status) {
-		return new FeatureMatcher<CountdownTimerState, CountdownTimerStatus>(equalTo(status),
+	private Matcher<CountdownTimerState> aRunningCountdownTimer() {
+		return new FeatureMatcher<CountdownTimerState, CountdownTimerStatus>(equalTo(RUNNING),
 				"countdown timer that is ", "was") {
 			@Override
 			protected CountdownTimerStatus featureValueOf(CountdownTimerState actual) {

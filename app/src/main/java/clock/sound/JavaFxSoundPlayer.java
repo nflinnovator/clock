@@ -1,29 +1,27 @@
 package clock.sound;
 
+import clock.domain.soundplayer.SoundPlayerState;
 import clock.shared.ResourceUtil;
-import clock.stateholders.SoundPlayerStateHolder;
+import clock.shared.StateHolder;
 import javafx.scene.media.AudioClip;
 
 public class JavaFxSoundPlayer {
 
-	private final SoundPlayerStateHolder stateHolder;
+	private final StateHolder<SoundPlayerState> stateHolder;
 
-	private AudioClip tickSound, beepSound;
-
-	public JavaFxSoundPlayer(SoundPlayerStateHolder stateHolder) {
+	public JavaFxSoundPlayer(StateHolder<SoundPlayerState> stateHolder) {
 		this.stateHolder = stateHolder;
 		play();
 	}
 
 	private void play() {
-		tickSound = new AudioClip(ResourceUtil.getResourceURL("tick_sound.mp3").toExternalForm());
-		beepSound = new AudioClip(ResourceUtil.getResourceURL("beep_sound.mp3").toExternalForm());
+		final var tickSound = new AudioClip(ResourceUtil.getResourceURL("tick_sound.mp3").toExternalForm());
+		final var beepSound = new AudioClip(ResourceUtil.getResourceURL("beep_sound.mp3").toExternalForm());
 
-		stateHolder.addTickCountChangeListener((observable, oldValue, newValue) -> {
-			tickSound.play();
-		});
-		stateHolder.addHasBeepedChangeListener((observable, oldValue, newValue) -> {
-			if (newValue)
+		stateHolder.addStateChangeListener((observable, oldValue, newValue) -> {
+			if (newValue.isTicking())
+				tickSound.play();
+			else
 				beepSound.play();
 		});
 	}

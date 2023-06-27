@@ -1,55 +1,62 @@
 package clock.domain.countdowntimer;
 
 import static clock.domain.countdowntimer.CountdownTimerStatus.INITIALIZED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.PAUSED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.RESTARTED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.RESUMED;
-import static clock.domain.countdowntimer.CountdownTimerStatus.RUNNING;
 import static clock.domain.countdowntimer.CountdownTimerStatus.STARTED;
+import static clock.domain.countdowntimer.CountdownTimerStatus.PAUSED;
+import static clock.domain.countdowntimer.CountdownTimerStatus.RUNNING;
 import static clock.domain.countdowntimer.CountdownTimerStatus.STOPPED;
 
-public record CountdownTimerState(Integer value, Integer runCount, CountdownTimerStatus status) {
-	
-	private static final Integer STOP_VALUE = 0;
+public record CountdownTimerState(CountdownTimerStatus status,Integer initialValue,Integer value, Integer runCount) {
 
-	public static CountdownTimerState initialize(Integer initialValue,Integer runCount) {
-		return new CountdownTimerState(initialValue, runCount, INITIALIZED);
+	static CountdownTimerState initialize(Integer initialValue) {
+		return new CountdownTimerState(INITIALIZED,initialValue,initialValue,0);
 	}
 	
-	public CountdownTimerState started() {
-		return new CountdownTimerState(value, runCount, STARTED);
+	CountdownTimerState started() {
+		if(isPaused()) {
+			return new CountdownTimerState(STARTED,initialValue,value+1,runCount);
+		}
+		return new CountdownTimerState(STARTED,initialValue,initialValue+1,runCount+1);
 	}
 	
-	public CountdownTimerState running(Integer value,Integer runCount) {
-		return new CountdownTimerState(value, runCount, RUNNING);
-	}
-
-	public CountdownTimerState paused() {
-		return new CountdownTimerState(value, runCount, PAUSED);
+	CountdownTimerState running() {
+		return new CountdownTimerState(RUNNING,initialValue,value-1,runCount);
 	}
 	
-	public CountdownTimerState resumed() {
-		return new CountdownTimerState(value, runCount, RESUMED);
-	}
-
-	public CountdownTimerState stopped() {
-		return new CountdownTimerState(0, runCount, STOPPED);
+	CountdownTimerState paused() {
+		return new CountdownTimerState(PAUSED,initialValue,value,runCount);
 	}
 	
-	public CountdownTimerState restarted(Integer initialValue) {
-		return new CountdownTimerState(initialValue, runCount, RESTARTED);
+	CountdownTimerState stopped() {
+		return new CountdownTimerState(STOPPED,initialValue,0,runCount);
 	}
 	
-	Boolean canRun() {
-		return hasNotTimedout() && status.isRunnable();
+	boolean allowsToCountdown() {
+		return status.canRun();
 	}
 	
-	private Boolean hasNotTimedout() {
-		return value >= STOP_VALUE;
+	boolean hasExpired() {
+		return value == 0;
 	}
-
-	Boolean isLastRound() {
-		return value == STOP_VALUE;
+	
+	public String statusText() {
+		return status.status();
+	}
+	
+	public String controlButtonText() {
+		return status.controlButtonText();
+	}
+	
+	public String stopButtonText() {
+		return status.stopButtonText();
+	}
+	
+	public boolean isStopButtonClickable() {
+		return status.isStopButtonClickable();
+	}
+	
+	private boolean isPaused() {
+		return status.isPaused();
 	}
 
 }

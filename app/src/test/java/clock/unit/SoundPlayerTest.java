@@ -1,7 +1,12 @@
 package clock.unit;
 
+import static org.hamcrest.Matchers.equalTo;
+
+import org.hamcrest.FeatureMatcher;
+import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -10,35 +15,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import clock.domain.soundplayer.ClockSoundPlayer;
-import clock.domain.soundplayer.SoundPlayer;
 import clock.domain.soundplayer.SoundPlayerState;
-import clock.domain.soundplayer.SoundPlayerStateChangeListener;
-import clock.domain.soundplayer.SoundPlayerStatus;
+import clock.shared.Observer;
 
 @DisplayName("CountdownTimerSoundPlayer Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SoundPlayerTest {
 
 	private final Mockery context = new Mockery();
-	private final SoundPlayerStateChangeListener listener = context.mock(SoundPlayerStateChangeListener.class);
-	private final SoundPlayer soundPlayer = new ClockSoundPlayer();
+	@SuppressWarnings("unchecked")
+	private final Observer<SoundPlayerState> observer = (Observer<SoundPlayerState>) context.mock(Observer.class);
+	private final ClockSoundPlayer soundPlayer = new ClockSoundPlayer();
 
 	@BeforeEach
-	void addListener() {
-		soundPlayer.addSoundPlayerStateChangeListener(listener);
+	void addObserver() {
+		soundPlayer.addObserver(observer);
 	}
 
 	@Test
 	@Order(1)
-	void notifiesInitializationWhenItInitializes() {
+	void notifiesTickWhenItPlays() {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(listener).soundPlayerStateChanged(new SoundPlayerState(0, SoundPlayerStatus.INITIALIZED));
+				oneOf(observer).onStateChange(with(aTickSound(true)));
 			}
 		});
 
-		soundPlayer.initialize();
+		soundPlayer.play(true);
 
 		context.assertIsSatisfied();
 
@@ -46,38 +50,32 @@ class SoundPlayerTest {
 
 	@Test
 	@Order(2)
-	void notifiesTickWhenItTicks() {
+	void notifiesBeepWhenItPlays() {
 
 		context.checking(new Expectations() {
 			{
-				allowing(listener).soundPlayerStateChanged(new SoundPlayerState(0, SoundPlayerStatus.INITIALIZED));
-				oneOf(listener).soundPlayerStateChanged(new SoundPlayerState(1, SoundPlayerStatus.TICK));
+				oneOf(observer).onStateChange(with(aTickSound(false)));
 			}
 		});
 
-		soundPlayer.initialize();
-		soundPlayer.tick();
+		soundPlayer.play(false);
 
 		context.assertIsSatisfied();
 
 	}
 
-	@Test
-	@Order(3)
-	void notifiesBeepWhenItBeeps() {
+	@AfterEach
+	void removeObserver() {
+		soundPlayer.removeObserver(observer);
+	}
 
-		context.checking(new Expectations() {
-			{
-				allowing(listener).soundPlayerStateChanged(new SoundPlayerState(0, SoundPlayerStatus.INITIALIZED));
-				oneOf(listener).soundPlayerStateChanged(new SoundPlayerState(0, SoundPlayerStatus.BEEP));
+	private Matcher<SoundPlayerState> aTickSound(boolean isTicking) {
+		return new FeatureMatcher<SoundPlayerState, Boolean>(equalTo(isTicking), "countdown timer that is ", "was") {
+			@Override
+			protected Boolean featureValueOf(SoundPlayerState actual) {
+				return actual.isTicking();
 			}
-		});
-
-		soundPlayer.initialize();
-		soundPlayer.beep();
-
-		context.assertIsSatisfied();
-
+		};
 	}
 
 }

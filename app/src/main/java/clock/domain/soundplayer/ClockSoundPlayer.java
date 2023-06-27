@@ -1,39 +1,13 @@
 package clock.domain.soundplayer;
 
-public class ClockSoundPlayer implements SoundPlayer {
+import clock.shared.Observable;
 
-	private SoundPlayerStateChangeListener listener;
-
-	private Integer tickCount;
-	private SoundPlayerState state;
+public class ClockSoundPlayer extends Observable<SoundPlayerState> implements SoundPlayer {
 
 	@Override
-	public void initialize() {
-		tickCount = 0;
-		state = SoundPlayerState.initialize(tickCount);
+	public void play(boolean isTicking) {
+		state = SoundPlayerState.play(isTicking);
 		notifyStateChange();
-	}
-
-	@Override
-	public void tick() {
-		tickCount++;
-		state = state.tick(tickCount);
-		notifyStateChange();
-	}
-
-	@Override
-	public void beep() {
-		state = state.beep();
-		notifyStateChange();
-	}
-	
-	@Override
-	public void addSoundPlayerStateChangeListener(SoundPlayerStateChangeListener listener) {
-		this.listener = listener;
-	}
-
-	private void notifyStateChange() {
-		listener.soundPlayerStateChanged(state);
 	}
 
 }

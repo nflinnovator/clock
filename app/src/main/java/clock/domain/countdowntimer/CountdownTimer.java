@@ -1,11 +1,13 @@
 package clock.domain.countdowntimer;
 
-public interface CountdownTimer{
-  void initialize(Integer initialValue);
-  void start();
-  void pause();
-  void resume();
-  void stop();
-  void restart();
-  public void addCountdownTimerStateChangeListener(CountdownTimerStateChangeListener listener);
+import clock.shared.Initializable;
+
+public interface CountdownTimer extends Initializable<Integer> {
+
+	abstract void countdown();
+
+	abstract void pause();
+
+	abstract void stop();
+
 }
