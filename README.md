@@ -25,6 +25,8 @@ Clock is a java client application that enables its users to utilize it either a
 - [x] abort countdown timer
 - [x] restart countdown timer
 - [x] countdown timer plays a tick sound when running
+- [ ] Enable a user to define the countdown timer duration
+- [ ] Display time in the format dd:hh:mm:ss 
 - [x] countdown timer stops ticking when paused
 - [x] countdown timer stops ticking when it times out
 - [x] countdown timer beeps when it times out  
