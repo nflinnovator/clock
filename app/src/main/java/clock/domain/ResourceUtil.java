@@ -1,4 +1,4 @@
-package clock.shared;
+package clock.domain;
 
 import java.io.File;
 import java.io.IOException;

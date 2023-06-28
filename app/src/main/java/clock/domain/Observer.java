@@ -1,4 +1,4 @@
-package clock.shared;
+package clock.domain;
 
 public interface Observer<E> {
 	

@@ -1,6 +1,6 @@
 package clock.domain.soundplayer;
 
-import clock.shared.Observable;
+import clock.domain.Observable;
 
 public class ClockSoundPlayer extends Observable<SoundPlayerState> implements SoundPlayer {
 

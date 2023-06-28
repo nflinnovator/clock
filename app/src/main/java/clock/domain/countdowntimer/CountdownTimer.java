@@ -1,6 +1,6 @@
 package clock.domain.countdowntimer;
 
-import clock.shared.Initializable;
+import clock.domain.Initializable;
 
 public interface CountdownTimer extends Initializable<Integer> {
 

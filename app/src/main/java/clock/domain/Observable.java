@@ -1,4 +1,4 @@
-package clock.shared;
+package clock.domain;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,11 +21,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import clock.domain.Observer;
 import clock.domain.countdowntimer.CountdownTimerState;
 import clock.domain.countdowntimer.CountdownTimerStatus;
 import clock.domain.countdowntimer.DefaultCountdownTimer;
 import clock.domain.soundplayer.SoundPlayer;
-import clock.shared.Observer;
 
 @DisplayName("CountdownTimer Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

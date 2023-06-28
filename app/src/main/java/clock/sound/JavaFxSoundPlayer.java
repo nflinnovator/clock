@@ -1,8 +1,8 @@
 package clock.sound;
 
+import clock.domain.ResourceUtil;
+import clock.domain.StateHolder;
 import clock.domain.soundplayer.SoundPlayerState;
-import clock.shared.ResourceUtil;
-import clock.shared.StateHolder;
 import javafx.scene.media.AudioClip;
 
 public class JavaFxSoundPlayer {

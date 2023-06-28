@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import clock.domain.Observer;
 import clock.domain.soundplayer.ClockSoundPlayer;
 import clock.domain.soundplayer.SoundPlayerState;
-import clock.shared.Observer;
 
 @DisplayName("CountdownTimerSoundPlayer Unit Test Case")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

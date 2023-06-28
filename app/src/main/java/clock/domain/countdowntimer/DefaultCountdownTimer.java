@@ -2,8 +2,9 @@ package clock.domain.countdowntimer;
 
 import java.util.concurrent.Executor;
 
+import clock.domain.Observable;
+import clock.domain.Utilities;
 import clock.domain.soundplayer.SoundPlayer;
-import clock.shared.Observable;
 
 public class DefaultCountdownTimer extends Observable<CountdownTimerState> implements CountdownTimer {
 
@@ -64,11 +65,7 @@ public class DefaultCountdownTimer extends Observable<CountdownTimerState> imple
 	}
 
 	private void pauseForASecond() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Utilities.pauseForASecond();
 	}
 
 }

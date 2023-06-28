@@ -1,4 +1,4 @@
-package clock.shared;
+package clock.domain;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
