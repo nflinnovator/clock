@@ -9,7 +9,7 @@ Clock is a java client application that enables its users to utilize it either a
 + Outside-in Test-driven Development
 ## Features
 #### Clock
-- [ ] Display the current time of the day
+- [x] Display the current time of the day
 #### Stopwatch
 - [ ] Display the passage of time in milliseconds
 - [ ] Record a series of instants
@@ -32,5 +32,6 @@ Clock is a java client application that enables its users to utilize it either a
 - [x] countdown timer stops ticking when it times out
 - [x] countdown timer beeps when it times out  
 ## Final Result
-![INITIALIZED COUNTDOWN TIMER](/app/bin/resources/result1.png)
-![PAUSED COUNTDOWN TIMER](/app/bin/resources/result2.png)
+![INITIALIZED COUNTDOWN TIMER](/app/bin/resources/init.png)
+![RUNNING COUNTDOWN TIMER](/app/bin/resources/running.png)
+![PAUSED COUNTDOWN TIMER](/app/bin/resources/paused.png)
